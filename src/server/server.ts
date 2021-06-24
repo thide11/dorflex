@@ -37,8 +37,9 @@ export async function runServer() {
   });
 
   const authMiddleware = async (req : any, res : any, next : any) => {
-    if(req.body.token) {
-      const data = await auth.exchangeJwtToUser(req.body.token);
+    const token = req.body.token || req.query.token;
+    if(token) {
+      const data = await auth.exchangeJwtToUser(token);
       req.context = data;
     }
     next();
@@ -47,8 +48,8 @@ export async function runServer() {
   app.use(authMiddleware);
 
   app.get("/auth/user", async (req : any, res : any) => {
+    console.log(req.context);
     res.send(req.context);
-    // res.sendStatus(400);
   })
   
   app.post("/auth/login", async (req : any, res : any) => {

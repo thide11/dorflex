@@ -8,15 +8,25 @@
 </head>
 <body>
   Bem vindo, <span id="name"></span>
+  <br>
+  <a href="javascript:void(0)" id="logout">Fazer logout</a>
 
   <script>
 
+    document.querySelector("#logout").addEventListener('click', () => {
+      localStorage.removeItem("token");
+      window.location = "/";
+    })    
+    
     const token = localStorage.getItem("token");
     if(!token) {
       alert("Sem token")    
+      window.location = "/";
     } else {
-      fetch(`http://localhost/auth/user?token=${token}`).then((data) => {
-        document.querySelector("#name").innerHTML = data.email;
+      fetch(`http://localhost/auth/user?token=${token}`)
+        .then((data) => data.json())
+        .then(data => {
+        document.querySelector("#name").innerHTML = data.name;
       });
     }
   </script>
