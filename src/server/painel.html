@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel</title>
+</head>
+<body>
+  Bem vindo, <span id="name"></span>
+
+  <script>
+
+    const token = localStorage.getItem("token");
+    if(!token) {
+      alert("Sem token")    
+    } else {
+      fetch(`http://localhost/auth/user?token=${token}`).then((data) => {
+        document.querySelector("#name").innerHTML = data.email;
+      });
+    }
+  </script>
+</body>
+</html>

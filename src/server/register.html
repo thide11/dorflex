@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Tela de login</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+</head>
+<body>
+  <h1>Criar conta</h1>
+  <input type="text" id="nome" placeholder="Digite seu nome"/>
+  <input type="email" id="email" placeholder="Digite um email"/>
+  <input type="password" id="password" placeholder="Digite uma senha"/>
+  <p id="msg" style="color: red"></p>
+  <input type="submit" id="enviar"/>
+  <script>
+    document.querySelector("#enviar").addEventListener('click', async () => {
+      const msg = document.querySelector("#msg");
+      msg.innerHTML = "";
+      const name = document.querySelector("#nome").value;
+      const email = document.querySelector("#email").value;
+      const password = document.querySelector("#password").value;
+      const response = await fetch("http://localhost:80/auth/register", {
+        method: "post",
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      if(response.status == 200) {
+        msg.innerHTML = "Conta criada com sucesso!";
+        setTimeout(() => {
+          window.location = "/";
+        }, 1000);
+      } else {
+        msg.innerHTML = "Erro ao criar conta, email já existe?";
+      }
+    })
+  </script>
+</body>
+</html>
