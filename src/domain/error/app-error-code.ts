@@ -1,0 +1,5 @@
+export enum AppErrorCode {
+  NOT_AUTENTICATED,
+  INSUFFICIENT_PERMISSIONS,
+  INVALID_TOKEN,
+}

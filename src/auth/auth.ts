@@ -4,6 +4,8 @@ import UserRepository from "../domain/repositories/user-repository";
 import bcrypt from "bcrypt";
 import Crypt from "../domain/crypt/crypt";
 import User from "../domain/models/user";
+import { AppErrorCode } from "../domain/error/app-error-code";
+import AppError from "../domain/error/app-error";
 
 const privateKey = process.env.PRIVATE_KEY || "shh";
 
@@ -16,6 +18,7 @@ export default class Auth {
     const user = await this.userRepository.insert({
       email: email,
       name: username,
+      role: "administrator",
       passwordHash: await this.crypt.encrypt(plainPassword),
     })
 
@@ -25,6 +28,9 @@ export default class Auth {
   async exchangeJwtToUser(token : string) {
     const data = jwt.decode(token);
     console.log(data);
+    if(data == null) {
+      throw new AppError(AppErrorCode.INVALID_TOKEN);
+    }
     return data;
   }
 
@@ -44,6 +50,7 @@ export default class Auth {
       {
       name: user.name,
       email: user.email,
+      role: "administrator",
       expirationToken,
       }, 
       privateKey

@@ -5,6 +5,10 @@ import BaseKnexRepository from "./base-knex-repository"
 import UserRepository from "../../../domain/repositories/user-repository"
 
 export default class UserKnexRepository extends BaseKnexRepository<User> implements UserRepository {
+  protected getPrimaryKeyName() {
+    return "id";
+  }
+  
   protected getTableName() {
     return "users"
   };
