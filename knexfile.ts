@@ -9,11 +9,11 @@ export default {
   test: {
     client: "pg",
     connection: {
-      host: "postgres",
+      host: "127.0.0.1",
       port: 5432,
       user: 'postgres',
       password: '123',
-      database: 'postgres'
+      database: 'test'
     },
     seeds: {
       directory: __dirname + '/test/repositories/knex/seeds'

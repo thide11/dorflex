@@ -12,15 +12,15 @@ import { generateCostCenterRoutes } from "./routes/cost-center/cost-center-route
 import CostCenterKnexRepository from "../repositories/knex/cost-center-knex-repository";
 import getEnvOrReturnError from "./utils/get-env-or-return-error";
 import getKnexConnection from "../repositories/knex/get-knex-connection";
+import { Knex } from "knex";
 const bodyParser = require('body-parser');
 
-export function runServer() {
-
-  const app : any = express()
+export function runServer(knexArg? : Knex) {
+  const app = express()
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
-  const knex = getKnexConnection();
+  const knex = knexArg ?? getKnexConnection();
   const userKnexRepository = new UserKnexRepository(knex);
   const areaKnexRepository = new AreaKnexRepository(knex);
   const costCenterKnexRepository = new CostCenterKnexRepository(knex);
@@ -58,6 +58,7 @@ export function runServer() {
   app.use('/costCenter', costCenterRoutes);
 
   if(getEnvOrReturnError("NODE_ENV") != "test") {
+    console.log("Dando bind na porta")
     const port : number = Number(getEnvOrReturnError("PORT"));
     app.listen(port, () => {
       console.log(`Servidor rodando na porta ${port}`)
