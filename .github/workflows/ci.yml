@@ -11,8 +11,6 @@ jobs:
     services:
       postgres:
         image: postgres:13.3
-        env:
-          POSTGRES_USER: postgres
         ports:
           - 5432:5432
         options: >-
