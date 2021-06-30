@@ -13,8 +13,6 @@ jobs:
         image: postgres:13.3
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 123
-          POSTGRES_DB: postgres
         ports:
           - 5432:5432
         options: >-

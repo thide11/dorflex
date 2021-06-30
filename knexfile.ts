@@ -1,6 +1,7 @@
 export default {
   development: {
     client: "pg",
+    version: "13.3",
     connection: `postgresql://${process.env.DBUSER ?? "postgres"}:${process.env.DBPASSWORD ?? "123"}@127.0.0.1:5432/postgres`,
     migrations: {
       directory: __dirname + '/src/infrastructure/repositories/knex/migrations'
@@ -8,11 +9,12 @@ export default {
   },
   test: {
     client: "pg",
+    version: "13.3",
     connection: {
-      host: "127.0.0.1",
+      host: "postgres",
       port: 5432,
       user: 'postgres',
-      password: '123',
+      password: 'postgres',
       database: 'postgres'
     },
     seeds: {
