@@ -13,7 +13,7 @@ export default {
       port: 5432,
       user: 'postgres',
       password: '123',
-      database: 'test'
+      database: 'postgres'
     },
     seeds: {
       directory: __dirname + '/test/repositories/knex/seeds'
