@@ -1,3 +1,5 @@
+import getEnvOrReturnError from "./src/infrastructure/server/utils/get-env-or-return-error";
+
 export default {
   development: {
     client: "pg",
@@ -11,10 +13,10 @@ export default {
     client: "pg",
     version: "13.3",
     connection: {
-      host: "127.0.0.1",
+      host: getEnvOrReturnError("POSTGRES_HOST"),
       port: 5432,
       user: 'postgres',
-      password: 'postgres',
+      password: getEnvOrReturnError("POSTGRES_PASSWORD"),
       database: 'postgres'
     },
     seeds: {
