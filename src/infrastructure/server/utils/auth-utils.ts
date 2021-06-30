@@ -1,6 +1,6 @@
-import AppError from "../../domain/error/app-error";
-import { AppErrorCode } from "../../domain/error/app-error-code";
-import User from "../../domain/models/user";
+import AppError from "../../../domain/error/app-error";
+import { AppErrorCode } from "../../../domain/error/app-error-code";
+import User from "../../../domain/models/user";
 
 export function requireLoggedUserToBeAdministradorOrThrow(authUser : User) {
   const autenticatedUser = authUser;

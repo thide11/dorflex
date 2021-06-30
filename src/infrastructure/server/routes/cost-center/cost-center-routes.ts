@@ -1,7 +1,7 @@
 import express from 'express';
 import { wrapRoutesErrorHandler } from "../../utils/wrap-routes-error-handler";
 import { getAuthDataOrThrow, requireLoggedUserToBeAdministradorOrThrow } from "../../utils/auth-utils";
-import CostCenterRepository from "../../../domain/repositories/cost-center-repository";
+import CostCenterRepository from "../../../../domain/repositories/cost-center-repository";
 import { StatusCodes } from "http-status-codes";
 
 export function generateCostCenterRoutes(costCenterRepository : CostCenterRepository) {

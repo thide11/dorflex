@@ -1,5 +1,5 @@
 import dotenv from "dotenv"
-import { runServer } from "./server/server"
+import { runServer } from "./infrastructure/server/server"
 dotenv.config();
 
 (async function () {

@@ -1,4 +1,4 @@
-import AreaRepository from "../../../domain/repositories/area-repository";
+import AreaRepository from "../../../../domain/repositories/area-repository";
 import express from "express";
 import { wrapRoutesErrorHandler } from "../../utils/wrap-routes-error-handler";
 import { getAuthDataOrThrow, requireLoggedUserToBeAdministradorOrThrow } from "../../utils/auth-utils";

@@ -1,12 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
-import AppError from '../../domain/error/app-error';
-import { AppErrorCode } from '../../domain/error/app-error-code';
+import AppError from '../../../domain/error/app-error';
+import { AppErrorCode } from '../../../domain/error/app-error-code';
+import getEnvOrReturnError from './get-env-or-return-error';
 
 export async function wrapRoutesErrorHandler(res : any, fn : Function) {
   try {
     await fn();
   } catch(e) {
-    console.log(e);
     if(e instanceof AppError) {
       switch(e.code) {
         case AppErrorCode.NOT_AUTENTICATED:
@@ -18,13 +18,12 @@ export async function wrapRoutesErrorHandler(res : any, fn : Function) {
       }
     } else {
       console.log("Enviando 500!");
-      console.log(process.env.NODE_ENV);
-      if(process.env.NODE_ENV === "development") {
+      const environment = getEnvOrReturnError("NODE_ENV");
+      if(["development", "test"].includes(environment)) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e.message)
       } else {
         res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);
       }
-      console.error(e);
     }
   }
 }

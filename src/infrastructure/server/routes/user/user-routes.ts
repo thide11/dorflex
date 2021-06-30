@@ -1,12 +1,12 @@
-import User from "../../../domain/models/user";
-import UserRepository from "../../../domain/repositories/user-repository";
-import UserKnexRepository from "../../../infrastructure/repositories/knex/user-knex-repository";
+import User from "../../../../domain/models/user";
+import UserRepository from "../../../../domain/repositories/user-repository";
+import UserKnexRepository from "../../../repositories/knex/user-knex-repository";
 
 import express from 'express';
 import { wrapRoutesErrorHandler } from "../../utils/wrap-routes-error-handler";
 import { getAuthDataOrThrow, requireLoggedUserToBeAdministradorOrThrow } from "../../utils/auth-utils";
 import { StatusCodes } from 'http-status-codes';
-import Auth from "../../../auth/auth";
+import Auth from "../../../../auth/auth";
 
 export function generateUserRoutes(userRepository : UserRepository) {
 

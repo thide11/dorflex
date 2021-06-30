@@ -27,7 +27,6 @@ export default class Auth {
 
   async exchangeJwtToUser(token : string) {
     const data = jwt.decode(token);
-    console.log(data);
     if(data == null) {
       throw new AppError(AppErrorCode.INVALID_TOKEN);
     }
