@@ -12,8 +12,11 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_USER: test
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 123
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
