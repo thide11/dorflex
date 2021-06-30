@@ -8,7 +8,7 @@ export default {
   },
   test: {
     client: "pg",
-    connection: `postgresql://${process.env.DBUSER ?? "postgres"}:${process.env.DBPASSWORD ?? "123"}@127.0.0.1:5432/test`,
+    connection: `postgresql://${process.env.DBUSER ?? "postgres"}:${process.env.DBPASSWORD ?? "123"}@127.0.0.1:5432/postgres`,
     seeds: {
       directory: __dirname + '/test/repositories/knex/seeds'
     },
