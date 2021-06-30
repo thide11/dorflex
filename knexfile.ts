@@ -15,9 +15,9 @@ export default {
     connection: {
       host: getEnvOrReturnError("POSTGRES_HOST"),
       port: 5432,
-      user: 'postgres',
+      user: getEnvOrReturnError("POSTGRES_USER"),
       password: getEnvOrReturnError("POSTGRES_PASSWORD"),
-      database: 'postgres'
+      database: getEnvOrReturnError("POSTGRES_DB"),
     },
     seeds: {
       directory: __dirname + '/test/repositories/knex/seeds'
