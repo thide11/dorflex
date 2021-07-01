@@ -1,5 +1,5 @@
 import knex from "knex";
-import Auth from "../../../../auth/auth";
+import Auth from "../../../auth/auth";
 import UserRepository from "../../../../domain/repositories/user-repository";
 
 import express from 'express';
@@ -8,8 +8,12 @@ import { StatusCodes } from "http-status-codes";
 export function generateAuthRoutes(userRepository : UserRepository, auth : Auth) {
   var router = express.Router();
 
-  router.get("/user", async (req, res) => {
-    res.send(res.locals.context);
+  router.get("/", async (_, res) => {
+    if(res.locals.context != null) {
+      res.send(res.locals.context);
+    } else {
+      res.sendStatus(StatusCodes.UNAUTHORIZED)
+    }
   })
 
   router.post("/login", async (req, res) => {

@@ -1,11 +1,14 @@
 import jwt from "jsonwebtoken";
 import knex from "knex"
-import UserRepository from "../domain/repositories/user-repository";
+import UserRepository from "../../domain/repositories/user-repository";
 import bcrypt from "bcrypt";
-import Crypt from "../domain/crypt/crypt";
-import User from "../domain/models/user";
-import { AppErrorCode } from "../domain/error/app-error-code";
-import AppError from "../domain/error/app-error";
+import Crypt from "../../domain/crypt/crypt";
+import User from "../../domain/models/user";
+import { AppErrorCode } from "../../domain/error/app-error-code";
+import AppError from "../../domain/error/app-error";
+import isDevEnvironment from "../utils/is-dev-environment";
+import testToken from "../utils/test-token";
+import testUser from "../utils/test-user";
 
 const privateKey = process.env.PRIVATE_KEY || "shh";
 
@@ -15,10 +18,11 @@ export default class Auth {
 
   async register(username : string, email : string, plainPassword : string) {
     
+    //@ts-ignore
     const user = await this.userRepository.insert({
       email: email,
       name: username,
-      role: "administrator",
+      // role: "administrator",
       passwordHash: await this.crypt.encrypt(plainPassword),
     })
 
@@ -26,6 +30,9 @@ export default class Auth {
   }
 
   async exchangeJwtToUser(token : string) {
+    if(isDevEnvironment() && token == testToken()) {
+      return testUser();
+    }
     const data = jwt.decode(token);
     if(data == null) {
       throw new AppError(AppErrorCode.INVALID_TOKEN);

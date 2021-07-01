@@ -6,9 +6,9 @@ import express from 'express';
 import { wrapRoutesErrorHandler } from "../../utils/wrap-routes-error-handler";
 import { getAuthDataOrThrow, requireLoggedUserToBeAdministradorOrThrow } from "../../utils/auth-utils";
 import { StatusCodes } from 'http-status-codes';
-import Auth from "../../../../auth/auth";
+import Auth from "../../../auth/auth";
 
-export function generateUserRoutes(userRepository : UserRepository) {
+export function generateUserRoutes(userRepository : UserRepository, auth : Auth) {
 
   var router = express.Router();
 
@@ -18,13 +18,14 @@ export function generateUserRoutes(userRepository : UserRepository) {
     res.send("Usuario listados!")
   })
 
-  router.put("/insert", async(req, res) => {
+  router.post("/", async(req, res) => {
     await wrapRoutesErrorHandler(res, async () => {
       const user = getAuthDataOrThrow(res);
       requireLoggedUserToBeAdministradorOrThrow(user);
 
       const data = req.body;
-      await userRepository.insert(data);
+      await auth.register(data.username, data.email, data.password)
+      res.sendStatus(StatusCodes.OK);
     });
   })
 

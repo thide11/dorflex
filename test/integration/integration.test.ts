@@ -1,7 +1,17 @@
+import dotenv from "dotenv";
+dotenv.config();
+dotenv.config({path: ".env.test"});
 import getKnexConnection from "../../src/infrastructure/repositories/knex/get-knex-connection";
 import { runServer } from "../../src/infrastructure/server/server";
 import supertest from "supertest";
 import { StatusCodes } from "http-status-codes";
+import { FakeObjects } from "../fixtures/fake-objects";
+import faker from "faker";
+import AreaKnexRepository from "../../src/infrastructure/repositories/knex/area-knex-repository";
+import performUserTests from "./integration-area-tests";
+import integrationAreaTests from "./integration-area-tests";
+import integrationAuthTests from "./integration-auth-tests";
+import testToken from "../../src/infrastructure/utils/test-token";
 
 process.env.NODE_ENV = 'test';
 
@@ -9,51 +19,17 @@ process.env.NODE_ENV = 'test';
 describe("Testes de crud do usuario", () => {
   const knex = getKnexConnection();
   const app = runServer(knex);
+  const authToken = testToken();
   
   beforeEach(async () => {
     await knex.migrate.rollback()
     await knex.migrate.latest()
     await knex.seed.run();
   });
-  
-  const authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRoaWRlMjAwMUBnbWFpbC5jb20iLCJleHBpcmF0aW9uVG9rZW4iOjE2MjQ1NjQzNDUxMzgsImlhdCI6MTYyNDU2NDM0MX0.ebqUfkXjyJijWEPwWVzcKclB040-isQ-3B6f6CxDxq0"
-  test('POST /auth/login', async () => {
-    const loginData = {
-      email: "thide2001@gmail.com",
-      password: "test"
-    }
-    const response = await supertest(app)
-        .post('/auth/login').send(loginData);
 
-    expect(response.statusCode).toEqual(200);
-    const token = response.body.token;
-    expect(token).not.toBeNull();
-  })
-
-  describe("Deve testar o funcionamento da área", () => {
-    test('GET /area without autentication', async () => {
-        const response = await supertest(app)
-          .get(`/area`)
-            
-        expect(response.statusCode).toEqual(StatusCodes.UNAUTHORIZED);
-    })
-    test('GET /area with autentication', async () => {
-        const response = await supertest(app)
-          .get(`/area`)
-          .set("Authorization", `Bearer ${authToken}`);
-            
-        expect(response.statusCode).toEqual(StatusCodes.OK);
-        expect(response.body).toEqual([]);
-    })
-    test('GET /area/10', async () => {
-        const response = await supertest(app)
-          .get(`/area`)
-          .set("Authorization", `Bearer ${authToken}`);
+  integrationAreaTests(knex, app, authToken);
+  integrationAuthTests(knex, app, authToken);
   
-        expect(response.statusCode).toEqual(StatusCodes.OK);
-        expect(response.body).toEqual([]);
-    })
-  });
 
   afterEach(async () => {
     await knex.migrate.rollback()

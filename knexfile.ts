@@ -1,10 +1,16 @@
-import getEnvOrReturnError from "./src/infrastructure/server/utils/get-env-or-return-error";
+import getEnvOrReturnError from "./src/infrastructure/utils/get-env-or-return-error";
 
 export default {
   development: {
     client: "pg",
     version: "13.3",
-    connection: `postgresql://${process.env.DBUSER ?? "postgres"}:${process.env.DBPASSWORD ?? "123"}@127.0.0.1:5432/postgres`,
+    connection: {
+      host: getEnvOrReturnError("POSTGRES_HOST"),
+      port: 5432,
+      user: getEnvOrReturnError("POSTGRES_USER"),
+      password: getEnvOrReturnError("POSTGRES_PASSWORD"),
+      database: getEnvOrReturnError("POSTGRES_DB"),
+    },
     migrations: {
       directory: __dirname + '/src/infrastructure/repositories/knex/migrations'
     },

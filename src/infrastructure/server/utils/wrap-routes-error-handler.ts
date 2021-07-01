@@ -1,7 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
 import AppError from '../../../domain/error/app-error';
 import { AppErrorCode } from '../../../domain/error/app-error-code';
-import getEnvOrReturnError from './get-env-or-return-error';
+import isDevEnvironment from '../../utils/is-dev-environment';
+import getEnvOrReturnError from './../../utils/get-env-or-return-error';
 
 export async function wrapRoutesErrorHandler(res : any, fn : Function) {
   try {
@@ -18,8 +19,8 @@ export async function wrapRoutesErrorHandler(res : any, fn : Function) {
       }
     } else {
       console.log("Enviando 500!");
-      const environment = getEnvOrReturnError("NODE_ENV");
-      if(["development", "test"].includes(environment)) {
+      console.log(e);
+      if(isDevEnvironment()) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e.message)
       } else {
         res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR);

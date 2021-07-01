@@ -1,4 +1,4 @@
-import getEnvOrReturnError from "../../server/utils/get-env-or-return-error";
+import getEnvOrReturnError from "../../utils/get-env-or-return-error";
 import knex, { Knex } from "knex";
 import knexConfig from "../../../../knexfile";
 

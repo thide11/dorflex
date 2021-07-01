@@ -4,7 +4,7 @@ import User from "../../../domain/models/user";
 
 export function requireLoggedUserToBeAdministradorOrThrow(authUser : User) {
   const autenticatedUser = authUser;
-  if(autenticatedUser.role == "administrator") {
+  if(autenticatedUser.role != "administrator") {
     throw new AppError(AppErrorCode.INSUFFICIENT_PERMISSIONS)
   }
 }

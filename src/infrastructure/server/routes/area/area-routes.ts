@@ -7,7 +7,7 @@ import { StatusCodes } from "http-status-codes";
 export function generateAreaRoutes(areaRepository : AreaRepository) {
   const router = express.Router();
 
-  router.post("/insert", async (req, res) => { 
+  router.post("/", async (req, res) => { 
     await wrapRoutesErrorHandler(res, async () => {
       const user = getAuthDataOrThrow(res);
       requireLoggedUserToBeAdministradorOrThrow(user);
