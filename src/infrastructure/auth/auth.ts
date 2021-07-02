@@ -3,12 +3,13 @@ import knex from "knex"
 import UserRepository from "../../domain/repositories/user-repository";
 import bcrypt from "bcrypt";
 import Crypt from "../../domain/crypt/crypt";
-import User from "../../domain/models/user";
+import User, { JWTUserData } from "../../domain/models/user";
 import { AppErrorCode } from "../../domain/error/app-error-code";
 import AppError from "../../domain/error/app-error";
 import isDevEnvironment from "../utils/is-dev-environment";
 import testToken from "../utils/test-token";
 import testUser from "../utils/test-user";
+import UncryptedUser from "../../domain/models/uncrypted-user";
 
 const privateKey = process.env.PRIVATE_KEY || "shh";
 
@@ -16,20 +17,18 @@ export default class Auth {
 
   constructor(private userRepository : UserRepository, private crypt : Crypt) {}
 
-  async register(username : string, email : string, plainPassword : string) {
-    
-    //@ts-ignore
+  async register(uncryptedUser : UncryptedUser) {
     const user = await this.userRepository.insert({
-      email: email,
-      name: username,
-      // role: "administrator",
-      passwordHash: await this.crypt.encrypt(plainPassword),
+      email: uncryptedUser.email,
+      name: uncryptedUser.name,
+      role: uncryptedUser.role,
+      passwordHash: await this.crypt.encrypt(uncryptedUser.password),
     })
 
-    return this.gerarJwt(user);
+    return user;
   }
 
-  async exchangeJwtToUser(token : string) {
+  exchangeJwtToUser(token : string) : JWTUserData {
     if(isDevEnvironment() && token == testToken()) {
       return testUser();
     }
@@ -37,7 +36,7 @@ export default class Auth {
     if(data == null) {
       throw new AppError(AppErrorCode.INVALID_TOKEN);
     }
-    return data;
+    return data as JWTUserData;
   }
 
   async autenticate(email : string, plainPassword : string) {

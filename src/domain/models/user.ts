@@ -1,6 +1,14 @@
-export default interface User {
+export interface BaseUser {
   name : string,
   email : string,
-  role : "administrator" | "warehouse" | "commom"
+  role : "administrator" | "warehouse" | "commom",
+}
+
+export default interface User extends BaseUser {
   passwordHash : string,
 }
+
+export interface JWTUserData extends BaseUser {
+  iat : number,
+}
+

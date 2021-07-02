@@ -9,7 +9,7 @@ export abstract class FakeObjects {
       email: "thide2001@gmail.com",
       name: "Thiago",
       passwordHash: "$2b$10$uwXb31Igl9Uofo.eqvceGefkQCEQtw8MkL4MeX7UPimgw51ru98WG",
-      // role: "administrator",
+      role: "administrator",
     } as User
   }
 
@@ -18,6 +18,7 @@ export abstract class FakeObjects {
       email: faker.internet.email(),
       name: faker.name.firstName(),
       passwordHash: await new Bcrypt().encrypt(password),
+      role: "administrator",
     } as User
   }
 

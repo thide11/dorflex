@@ -7,6 +7,7 @@ import { wrapRoutesErrorHandler } from "../../utils/wrap-routes-error-handler";
 import { getAuthDataOrThrow, requireLoggedUserToBeAdministradorOrThrow } from "../../utils/auth-utils";
 import { StatusCodes } from 'http-status-codes';
 import Auth from "../../../auth/auth";
+import UncryptedUser from "../../../../domain/models/uncrypted-user";
 
 export function generateUserRoutes(userRepository : UserRepository, auth : Auth) {
 
@@ -24,7 +25,13 @@ export function generateUserRoutes(userRepository : UserRepository, auth : Auth)
       requireLoggedUserToBeAdministradorOrThrow(user);
 
       const data = req.body;
-      await auth.register(data.username, data.email, data.password)
+      await auth.register({
+        email: data.email,
+        name: data.name,
+        password: data.password,
+        role: data.role
+      } as UncryptedUser
+      )
       res.sendStatus(StatusCodes.OK);
     });
   })
