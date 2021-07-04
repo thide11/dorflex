@@ -6,6 +6,8 @@ import { FakeObjects } from "../fixtures/fake-objects";
 import faker from "faker";
 import AreaKnexRepository from "../../src/infrastructure/repositories/knex/area-knex-repository";
 import { Knex } from "knex";
+import simpleCrudTests from "./simple-crud-tests";
+import RequesterKnexRepository from "../../src/infrastructure/repositories/knex/requester-knex-repository";
 
 export default function integrationAreaTests(knex : Knex, app : any, authToken : string) {
   describe("Deve testar o funcionamento da área", () => {
@@ -64,7 +66,7 @@ export default function integrationAreaTests(knex : Knex, app : any, authToken :
       test("PUT /area/:id", async () => {
         const areaEditada = FakeObjects.getTheFakeArea();
 
-        areaEditada.name = faker.datatype.string();
+        areaEditada.solicitation_is_blocked = !areaEditada.solicitation_is_blocked;
 
         const response = await supertest(app)
           .put(`/area/${areaEditada.code}`)
@@ -79,6 +81,10 @@ export default function integrationAreaTests(knex : Knex, app : any, authToken :
     });
     describe("Funcao de deletar um", () => {
       test("DELETE /area/:id", async () => {
+
+        const requester = new RequesterKnexRepository(knex);
+        await requester.delete(FakeObjects.getTheFakeRequester().id);
+
         const areaARemover = FakeObjects.getTheFakeArea();
         const response = await supertest(app)
           .delete(`/area/${areaARemover.code}`)

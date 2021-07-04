@@ -9,4 +9,5 @@ export async function seed(knex: Knex): Promise<void> {
     // Inserts seed entries
     await knex("users").insert(FakeObjects.getTheFakeUser());
     await knex("area").insert(FakeObjects.getTheFakeArea());
+    await knex("requester").insert(FakeObjects.getTheFakeRequester());
 };

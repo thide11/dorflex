@@ -1,5 +1,6 @@
 import faker from "faker";
 import Area from "../../src/domain/models/area";
+import Requester from "../../src/domain/models/requester";
 import User from "../../src/domain/models/user";
 import Bcrypt from "../../src/infrastructure/crypt/bcrypt";
 
@@ -36,5 +37,21 @@ export abstract class FakeObjects {
       name: faker.commerce.department(),
       solicitation_is_blocked: faker.datatype.boolean(),
     } as Area
+  }
+
+  static getTheFakeRequester() {
+    return {
+      id: 10,
+      name: "João Moura",
+      area_name: this.getTheFakeArea().name,
+    } as Requester
+  }
+
+  static generateFakeRequester() {
+    return {
+      id: faker.datatype.number(),
+      name: faker.name.findName(),
+      area_name: faker.datatype.string(),
+    } as Requester
   }
 }
