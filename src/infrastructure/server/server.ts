@@ -62,7 +62,7 @@ export function runServer(knexArg? : Knex) {
   const costCenterRoutes = generateCostCenterRoutes(costCenterKnexRepository);
   app.use('/costCenter', costCenterRoutes);
 
-  const importRoutes = generateImportRoutes();
+  const importRoutes = generateImportRoutes(knex);
   app.use('/import', importRoutes);
 
   const requesterRoutes = generateRequesterRoutes(requesterKnexRepository);

@@ -6,7 +6,18 @@ export default abstract class BaseExcelImporter {
 
   constructor(private reader : ExcelReader) {};
 
-  readExcel(buffer : any) {
+  private isAnExcelMimetype(mimetype : string) {
+    return [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+      "application/vnd.ms-excel",
+    ].includes(mimetype) 
+  }
+
+  readExcel(file : any) {
+    if(!this.isAnExcelMimetype(file.mimetype)) {  
+      throw new AppError(AppErrorCode.EXPECTED_EXCEL_FILE);
+    }
+    const buffer = file.data;
     const excel = this.reader.readExcel(buffer);
     const modelList = excel.map((excelRow : any) => {
       return Object.entries(excelRow).reduce((op, [key,value]) => {
@@ -19,17 +30,10 @@ export default abstract class BaseExcelImporter {
         return op
       },{})
     });
-    console.log(modelList);
+    return this.saveRegister(modelList);
   }
 
-  private saveRegister() {
-    
-
-
-
-  }
-
-
+  protected abstract saveRegister(data : any[]) : Promise<void>;
 
   protected abstract getExcelKeysToModelKeys : any;
 }

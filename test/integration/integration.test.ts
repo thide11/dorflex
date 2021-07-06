@@ -6,6 +6,7 @@ import integrationAreaTests from "./integration-area-tests";
 import integrationAuthTests from "./integration-auth-tests";
 import testToken from "../../src/infrastructure/utils/test-token";
 import integrationRequesterTests from "./integration-requester-tests";
+import integrationImportTests from "./integration-import-tests";
 
 process.env.NODE_ENV = 'test';
 
@@ -24,6 +25,7 @@ describe("Testes de crud do usuario", () => {
     await knex.seed.run();
   });
 
+  integrationImportTests(knex, app, authToken);
   integrationAreaTests(knex, app, authToken);
   integrationAuthTests(knex, app, authToken);
   integrationRequesterTests(knex, app, authToken);

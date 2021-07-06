@@ -16,6 +16,7 @@ export default class AppError extends Error {
       [`${AppErrorCode.NOT_FOUND}`]: "Não encontrado um model com este id",
       [`${AppErrorCode.EMPTY_DATA}`]: "Data não recebida",
       [`${AppErrorCode.INVALID_DATA}`]: "Formato da data enviada inválida",
+      [`${AppErrorCode.EXPECTED_EXCEL_FILE}`]: "Tipo de arquivo inválido, envie um excel",
     }
     return errorCodeToMessage[code];
   }

@@ -1,34 +1,47 @@
 import express from 'express';
+import { StatusCodes } from 'http-status-codes';
+import { Knex } from 'knex';
+import BaseExcelImporter from '../../../../domain/excel-importers/base-excel-importer';
 import RequesterExcelImporter from '../../../excel-importers/requester-excel-importer';
 import ExcelReader from '../../../excel/excel-reader';
+import AreaKnexRepository from '../../../repositories/knex/area-knex-repository';
+import RequesterKnexRepository from '../../../repositories/knex/requester-knex-repository';
+import { getAuthDataOrThrow, requireLoggedUserToBeAdministradorOrThrow } from '../../utils/auth-utils';
+import { wrapRoutesErrorHandler } from '../../utils/wrap-routes-error-handler';
 
-export function generateImportRoutes() {
+export function generateImportRoutes(knex : Knex) {
   var router = express.Router();
 
-  router.post("/", (req : any, res) => {
-    //@ts-ignore
-    if(!req.files.file) {
-      res.send("Nenhum arquivo foi recebido")
-      return;
-    }
-    
-    const excelFile = req.files.file;
-    if(["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"].includes(excelFile.mimetype)) {  
-
-      const excelReader = new ExcelReader()
-      const typeToExcelImporter = {
-        "requester-excel": new RequesterExcelImporter(excelReader),
+  router.post("/", async (req : any, res) => {
+    await wrapRoutesErrorHandler(res, async () => {
+      const user = getAuthDataOrThrow(res);
+      requireLoggedUserToBeAdministradorOrThrow(user);
+      if(!req.files?.file) {
+        res.status(StatusCodes.BAD_REQUEST).send("Nenhum arquivo foi recebido")
+        return;
       }
 
-      const type = req.query.type;
-      //@ts-ignore
+      const excelReader = new ExcelReader()
+      const areaRepository = new AreaKnexRepository(knex);
+      const requesterRepository = new RequesterKnexRepository(areaRepository, knex);
+
+      const typeToExcelImporter : { [key: string] : BaseExcelImporter } = {
+        "requester-excel": new RequesterExcelImporter(requesterRepository, excelReader),
+      }
+
+      const type = req.body.type;
+
       const selectedExcelImporter = typeToExcelImporter[type];
-      console.log(req.files.file.data.length);
-      const data = selectedExcelImporter.readExcel(req.files.file.data);
-      res.send("Lido o excel")
-    } else {
-      res.send("Tipo de arquivo inválido, envie um excel")
-    }
-  })
+      if(!selectedExcelImporter) {
+        res.status(StatusCodes.BAD_REQUEST).send(`Tipo não reconhecido, envie um dos seguintes: ${
+          Object.keys(typeToExcelImporter).join("/")
+        }`)
+      }
+
+      const file = req.files.file;
+      const data = await selectedExcelImporter.readExcel(file);
+      res.send("Arquivo excel importado")
+    })
+  });
   return router;
 }

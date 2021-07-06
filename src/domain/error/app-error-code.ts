@@ -7,4 +7,5 @@ export enum AppErrorCode {
   UNKNOWN_AREA_NAME,
   EMPTY_DATA,
   INVALID_DATA,
+  EXPECTED_EXCEL_FILE,
 }

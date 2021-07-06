@@ -24,6 +24,8 @@ export async function wrapRoutesErrorHandler(res : any, fn : Function) {
           return res.status(StatusCodes.BAD_REQUEST).send(e.message);
         case AppErrorCode.INVALID_DATA:
           return res.status(StatusCodes.BAD_REQUEST).send(e.message);
+        case AppErrorCode.EXPECTED_EXCEL_FILE:
+          return res.status(StatusCodes.BAD_REQUEST).send(e.message);
         default: 
           return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e.message);
       }
