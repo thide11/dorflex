@@ -10,6 +10,9 @@ import simpleCrudTests from "./simple-crud-tests";
 import RequesterKnexRepository from "../../src/infrastructure/repositories/knex/requester-knex-repository";
 
 export default function integrationAreaTests(knex : Knex, app : any, authToken : string) {
+  const areaRepository = new AreaKnexRepository(knex);
+  const requesterRepository = new RequesterKnexRepository(areaRepository, knex);
+
   describe("Deve testar o funcionamento da área", () => {
     describe("Funcoes de listagem", () => {
       test('GET /area without autentication', async () => {
@@ -57,7 +60,6 @@ export default function integrationAreaTests(knex : Knex, app : any, authToken :
           .send(areaAInserir);
         
         expect(response.statusCode).toEqual(StatusCodes.CREATED);
-        const areaRepository = new AreaKnexRepository(knex);
         const areas = await areaRepository.list();
         expect(areas.length).toBe(2);
       })
@@ -74,16 +76,13 @@ export default function integrationAreaTests(knex : Knex, app : any, authToken :
           .send(areaEditada);
         
         expect(response.statusCode).toEqual(StatusCodes.OK);
-        const areaRepository = new AreaKnexRepository(knex);
         const areaNoBanco = await areaRepository.get(areaEditada.code);
         expect(areaNoBanco).toStrictEqual(areaEditada);
       })
     });
     describe("Funcao de deletar um", () => {
       test("DELETE /area/:id", async () => {
-
-        const requester = new RequesterKnexRepository(knex);
-        await requester.delete(FakeObjects.getTheFakeRequester().id);
+        await requesterRepository.delete(FakeObjects.getTheFakeRequester().id);
 
         const areaARemover = FakeObjects.getTheFakeArea();
         const response = await supertest(app)
@@ -91,7 +90,6 @@ export default function integrationAreaTests(knex : Knex, app : any, authToken :
           .set("Authorization", `Bearer ${authToken}`)
         
         expect(response.statusCode).toEqual(StatusCodes.OK);
-        const areaRepository = new AreaKnexRepository(knex);
         const areaNoBanco = await areaRepository.get(areaARemover.code);
         expect(areaNoBanco).toBeUndefined();
       })

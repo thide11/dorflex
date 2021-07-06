@@ -1,4 +1,6 @@
 import { Knex } from "knex";
+import AppError from "../../../domain/error/app-error";
+import { AppErrorCode } from "../../../domain/error/app-error-code";
 import BaseRepository from "../../../domain/repositories/base-repository";
 
 export default abstract class BaseKnexRepository<T> implements BaseRepository<T> {
@@ -10,11 +12,20 @@ export default abstract class BaseKnexRepository<T> implements BaseRepository<T>
   }
 
   async delete(id: any): Promise<void> {
-    await this.getKnexQuery().where(this.getPrimaryKeyName(), id).delete();
+    const affectedRows = await this.getKnexQuery().where(this.getPrimaryKeyName(), id).delete();
+    if(affectedRows == 0) {
+      throw new AppError(AppErrorCode.NOT_FOUND);
+    }
   }
 
   async update(id : any, data: T): Promise<T> {
-    await this.getKnexQuery().where(this.getPrimaryKeyName(), id).update(data);
+    if(!data) {
+      throw new AppError(AppErrorCode.EMPTY_DATA)
+    }
+    const affectedRows = await this.getKnexQuery().where(this.getPrimaryKeyName(), id).update(data);
+    if(affectedRows == 0) {
+      throw new AppError(AppErrorCode.NOT_FOUND);
+    }
     return data;
   }
 

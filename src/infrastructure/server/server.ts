@@ -28,7 +28,7 @@ export function runServer(knexArg? : Knex) {
   const userKnexRepository = new UserKnexRepository(knex);
   const areaKnexRepository = new AreaKnexRepository(knex);
   const costCenterKnexRepository = new CostCenterKnexRepository(knex);
-  const requesterKnexRepository = new RequesterKnexRepository(knex);
+  const requesterKnexRepository = new RequesterKnexRepository(areaKnexRepository, knex);
 
   const auth = new Auth(
     userKnexRepository,

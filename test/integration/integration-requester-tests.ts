@@ -11,6 +11,8 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
   const baseEndpoint = "requester";
   const exampleModel = FakeObjects.getTheFakeRequester();
   const exampleGeneratedModel = FakeObjects.generateFakeRequester();
+  const areaRepository = new AreaKnexRepository(knex);
+  const requesterRepository = new RequesterKnexRepository(areaRepository, knex);
 
   describe("Deve testar o funcionamento da solicitante", () => {
     describe("Funcoes de listagem", () => {
@@ -51,9 +53,16 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
     })
 
     describe("Funcao de inserir um", () => {
-      test(`POST /${baseEndpoint}`, async () => {
+      test(`POST /${baseEndpoint} com um nome de área inválido`, async () => {
+        const response = await supertest(app)
+          .post(`/${baseEndpoint}`)
+          .set("Authorization", `Bearer ${authToken}`)
+          .send(exampleGeneratedModel);
+        
+        expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      })
 
-        const areaRepository = new AreaKnexRepository(knex)
+      test(`POST /${baseEndpoint} com um nome de área válido`, async () => {
         await areaRepository.insert({
           code: 241,
           name: exampleGeneratedModel.area_name,
@@ -66,16 +75,37 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
           .send(exampleGeneratedModel);
         
         expect(response.statusCode).toEqual(StatusCodes.CREATED);
-        const knexRepository = new RequesterKnexRepository(knex);
-        const list = await knexRepository.list();
+        const list = await requesterRepository.list();
         expect(list.length).toBe(2);
-        expect(list[1]).toStrictEqual(exampleGeneratedModel);
+        expect(list[1].name).toStrictEqual(exampleGeneratedModel.name);
       })
     });
 
     describe("Funcao de editar um", () => {
-      test(`PUT /${baseEndpoint}/:id`, async () => {
-        const modelToEdit : Requester = JSON.parse(JSON.stringify(exampleModel));
+      test(`PUT /${baseEndpoint}/:id com id inexistente`, async () => {
+        const modelToEdit : Requester = {...exampleModel};
+        modelToEdit.id = 56;
+
+        const response = await supertest(app)
+          .put(`/${baseEndpoint}/${modelToEdit.id}`)
+          .set("Authorization", `Bearer ${authToken}`)
+          .send(modelToEdit);
+        
+        expect(response.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      })
+
+      test(`PUT /${baseEndpoint}/:id sem enviar data`, async () => {
+        const modelToEdit : Requester = {...exampleModel};
+
+        const response = await supertest(app)
+          .put(`/${baseEndpoint}/${modelToEdit.id}`)
+          .set("Authorization", `Bearer ${authToken}`)
+        
+        expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      })
+
+      test(`PUT /${baseEndpoint}/:id com id válido`, async () => {
+        const modelToEdit : Requester = {...exampleModel};
 
         modelToEdit.name = "newName"
 
@@ -85,20 +115,26 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
           .send(modelToEdit);
         
         expect(response.statusCode).toEqual(StatusCodes.OK);
-        const requesterRepository = new RequesterKnexRepository(knex);
         const model = await requesterRepository.get(modelToEdit.id);
         expect(model).toStrictEqual(modelToEdit);
       })
     });
 
     describe("Funcao de deletar um", () => {
-      test(`DELETE /${baseEndpoint}/:id`, async () => {
+      test(`DELETE /${baseEndpoint}/:id com id inexistente`, async () => {
+        const response = await supertest(app)
+          .delete(`/${baseEndpoint}/${exampleModel.id+1}`)
+          .set("Authorization", `Bearer ${authToken}`)
+        
+        expect(response.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      })
+
+      test(`DELETE /${baseEndpoint}/:id com id válido`, async () => {
         const response = await supertest(app)
           .delete(`/${baseEndpoint}/${exampleModel.id}`)
           .set("Authorization", `Bearer ${authToken}`)
         
         expect(response.statusCode).toEqual(StatusCodes.OK);
-        const requesterRepository = new RequesterKnexRepository(knex);
         const model = await requesterRepository.get(exampleModel.id);
         expect(model).toBeUndefined();
       })

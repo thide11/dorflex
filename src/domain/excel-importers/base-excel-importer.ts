@@ -12,7 +12,7 @@ export default abstract class BaseExcelImporter {
       return Object.entries(excelRow).reduce((op, [key,value]) => {
         let newKey = this.getExcelKeysToModelKeys[key]
         if(newKey == undefined) {
-          throw new AppError(AppErrorCode.UNKNOW_EXCEL_COLUMN, `Coluna ${key} não reconhecida para este tipo de arquivo`)
+          throw new AppError(AppErrorCode.UNKNOWN_EXCEL_COLUMN, `Coluna ${key} não reconhecida para este tipo de arquivo`)
         }
         //@ts-ignore
         op[newKey] = value

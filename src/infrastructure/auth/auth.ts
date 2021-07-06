@@ -32,7 +32,7 @@ export default class Auth {
     if(isDevEnvironment() && token == testToken()) {
       return testUser();
     }
-    const data = jwt.decode(token);
+    const data = jwt.verify(token, privateKey);
     if(data == null) {
       throw new AppError(AppErrorCode.INVALID_TOKEN);
     }
