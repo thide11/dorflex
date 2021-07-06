@@ -12,12 +12,12 @@ export function generateCostCenterRoutes(costCenterRepository : CostCenterReposi
       const user = getAuthDataOrThrow(res);
       requireLoggedUserToBeAdministradorOrThrow(user);
       const costCenterData = req.body;
-      await costCenterRepository.insert({
+      const data = await costCenterRepository.insert({
         area: costCenterData.area,
         code: costCenterData.code,
         description: costCenterData.description,
       });
-      res.sendStatus(StatusCodes.CREATED)
+      res.status(StatusCodes.CREATED).send(data);
     });
   })
 

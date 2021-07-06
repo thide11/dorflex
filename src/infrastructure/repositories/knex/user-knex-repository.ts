@@ -5,6 +5,13 @@ import BaseKnexRepository from "./base-knex-repository"
 import UserRepository from "../../../domain/repositories/user-repository"
 
 export default class UserKnexRepository extends BaseKnexRepository<User> implements UserRepository {
+  protected getValidatorRules() : Validator.Rules {
+    return {
+      email: 'email|required',
+      passwordHash: 'string|required',
+      role: 'string',
+    }
+  };
   protected getPrimaryKeyName() {
     return "id";
   }

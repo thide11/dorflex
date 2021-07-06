@@ -1,4 +1,3 @@
-import { REQUEST_HEADER_FIELDS_TOO_LARGE } from "http-status-codes";
 import AppError from "../../../domain/error/app-error";
 import { AppErrorCode } from "../../../domain/error/app-error-code";
 import User from "../../../domain/models/user";

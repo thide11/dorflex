@@ -11,6 +11,15 @@ export default class RequesterKnexRepository extends BaseKnexRepository<Requeste
   constructor(private areaRepository : AreaRepository, knex : Knex ) {
     super(knex);
   }
+
+  protected getValidatorRules() : Validator.Rules {
+    return {
+      area_name: 'string|required',
+      name: 'string|required',
+      id: 'integer'
+    }
+  };
+
   protected getTableName(): string {
     return "requester";
   }
@@ -18,6 +27,9 @@ export default class RequesterKnexRepository extends BaseKnexRepository<Requeste
     return "id";
   }
   async insert(data: Requester): Promise<Requester> {
+    if(!data.area_name) {
+      throw new AppError(AppErrorCode.INVALID_DATA);
+    }
     const area = await this.areaRepository.getByName(data.area_name);
     if(area) {
       return super.insert(data);

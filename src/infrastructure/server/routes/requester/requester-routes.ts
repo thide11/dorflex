@@ -15,11 +15,11 @@ export function generateRequesterRoutes(requesterRepository : RequesterRepositor
       requirePayloadOnBody(req);
       requireLoggedUserToBeAdministradorOrThrow(user);
       const clientData = req.body;
-      await requesterRepository.insert({
+      const data = await requesterRepository.insert({
         name: clientData.name,
         area_name: clientData.area_name,
       });
-      res.sendStatus(StatusCodes.CREATED)
+      res.status(StatusCodes.CREATED).send(data);
     });
   })
 

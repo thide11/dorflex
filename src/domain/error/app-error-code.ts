@@ -6,4 +6,5 @@ export enum AppErrorCode {
   NOT_FOUND,
   UNKNOWN_AREA_NAME,
   EMPTY_DATA,
+  INVALID_DATA,
 }

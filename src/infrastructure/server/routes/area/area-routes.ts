@@ -12,12 +12,12 @@ export function generateAreaRoutes(areaRepository : AreaRepository) {
       const user = getAuthDataOrThrow(res);
       requireLoggedUserToBeAdministradorOrThrow(user);
       const clientData = req.body;
-      await areaRepository.insert({
+      const model = await areaRepository.insert({
         code: clientData.code,
         name: clientData.name,
         solicitation_is_blocked: clientData.solicitation_is_blocked,
       });
-      res.sendStatus(StatusCodes.CREATED)
+      res.status(StatusCodes.CREATED).send(model);
     });
   })
 

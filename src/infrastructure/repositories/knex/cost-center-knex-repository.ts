@@ -3,6 +3,12 @@ import CostCenterRepository from "../../../domain/repositories/cost-center-repos
 import BaseKnexRepository from "./base-knex-repository";
 
 export default class CostCenterKnexRepository extends BaseKnexRepository<CostCenter> implements CostCenterRepository {
+  protected getValidatorRules() : Validator.Rules {
+    return {
+      area: 'string|required',
+      description: 'string',
+    }
+  };
   protected getPrimaryKeyName() {
     return "code";
   }

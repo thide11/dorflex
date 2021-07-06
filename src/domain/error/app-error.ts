@@ -15,6 +15,7 @@ export default class AppError extends Error {
       [`${AppErrorCode.UNKNOWN_AREA_NAME}`]: "Nome da área não encontrado no banco de dados",
       [`${AppErrorCode.NOT_FOUND}`]: "Não encontrado um model com este id",
       [`${AppErrorCode.EMPTY_DATA}`]: "Data não recebida",
+      [`${AppErrorCode.INVALID_DATA}`]: "Formato da data enviada inválida",
     }
     return errorCodeToMessage[code];
   }

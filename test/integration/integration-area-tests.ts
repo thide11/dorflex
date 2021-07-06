@@ -60,6 +60,7 @@ export default function integrationAreaTests(knex : Knex, app : any, authToken :
           .send(areaAInserir);
         
         expect(response.statusCode).toEqual(StatusCodes.CREATED);
+        expect(response.body).toEqual(areaAInserir);
         const areas = await areaRepository.list();
         expect(areas.length).toBe(2);
       })

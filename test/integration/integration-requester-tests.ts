@@ -75,6 +75,8 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
           .send(exampleGeneratedModel);
         
         expect(response.statusCode).toEqual(StatusCodes.CREATED);
+        expect(response.body.name).toEqual(exampleGeneratedModel.name);
+        expect(response.body.id).toEqual(1);
         const list = await requesterRepository.list();
         expect(list.length).toBe(2);
         expect(list[1].name).toStrictEqual(exampleGeneratedModel.name);
