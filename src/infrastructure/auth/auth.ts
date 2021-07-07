@@ -53,10 +53,11 @@ export default class Auth {
     const expirationToken = new Date().getTime() + 3600;
     return jwt.sign(
       {
-      name: user.name,
-      email: user.email,
-      role: "administrator",
-      expirationToken,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: "administrator",
+        expirationToken,
       }, 
       privateKey
     );

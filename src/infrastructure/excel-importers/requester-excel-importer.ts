@@ -1,4 +1,5 @@
 import BaseExcelImporter from "../../domain/excel-importers/base-excel-importer";
+import ExcelUploadsRepository from "../../domain/repositories/excel-uploads-repository";
 import RequesterRepository from "../../domain/repositories/requester-repository";
 import ExcelReader from "../excel/excel-reader";
 
@@ -9,8 +10,8 @@ export default class RequesterExcelImporter extends BaseExcelImporter {
     };
   }
 
-  constructor(private requesterRepository : RequesterRepository, reader : ExcelReader) {
-    super(reader);
+  constructor(private requesterRepository : RequesterRepository, excelUploadsRepository : ExcelUploadsRepository, reader : ExcelReader) {
+    super(excelUploadsRepository, reader);
   }
 
   protected getExcelKeysToModelKeys: any = {

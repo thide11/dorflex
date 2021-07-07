@@ -9,6 +9,7 @@ import AreaKnexRepository from "../../src/infrastructure/repositories/knex/area-
 import { FakeObjects } from "../fixtures/fake-objects";
 import Requester from "../../src/domain/models/requester";
 import Area from "../../src/domain/models/area";
+import ExcelUploadsKnexRepository from "../../src/infrastructure/repositories/knex/excel-uploads-knex-repository";
 
 export default function integrationImportTests(knex : Knex, app : any, authToken : string) {
 
@@ -34,15 +35,29 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
     })
 
     test('Deve ler arquivo excel de solicitantes', async () => {
+
+      const filename = "upload-solicitante.xlsx"
+
       const response = await supertest(app)
           .post('/import')
           .field('type', 'requester-excel')
-          .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", "upload-solicitante.xlsx"))
+          .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
           .set("Authorization", `Bearer ${authToken}`)
 
       expect(response.statusCode).toEqual(StatusCodes.OK);
       const areaRepository = new AreaKnexRepository(knex);
       const requesterRepository = new RequesterKnexRepository(areaRepository, knex);
+
+      //Check if excel upload is on register
+      const excelUploadsRepository = new ExcelUploadsKnexRepository(knex);
+      const excelUploads = await excelUploadsRepository.list();
+      expect(excelUploads.length).toBe(1);
+      const excelUpload = excelUploads[0];
+      expect(excelUpload.filename).toBe(filename)
+      expect(excelUpload.user_uploaded).toBe(0)
+      expect(excelUpload.result).not.toBeNull();
+
+
       const requesters = await requesterRepository.list();
       expect(requesters.length).toBe(3);
       expect(requesters).toStrictEqual([

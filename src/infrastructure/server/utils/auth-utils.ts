@@ -1,8 +1,8 @@
 import AppError from "../../../domain/error/app-error";
 import { AppErrorCode } from "../../../domain/error/app-error-code";
-import User from "../../../domain/models/user";
+import User, { BaseUser, JWTUserData } from "../../../domain/models/user";
 
-export function requireLoggedUserToBeAdministradorOrThrow(authUser : User) {
+export function requireLoggedUserToBeAdministradorOrThrow(authUser : BaseUser) {
   const autenticatedUser = authUser;
   if(autenticatedUser.role != "administrator") {
     throw new AppError(AppErrorCode.INSUFFICIENT_PERMISSIONS)
@@ -18,9 +18,9 @@ export function requirePayloadOnBody(req : any) {
   }
 }
 
-export function getAuthDataOrThrow(res : any) : User {
+export function getAuthDataOrThrow(res : any) : JWTUserData {
   if(res.locals?.context) {
-    return res.locals.context as User;
+    return res.locals.context as JWTUserData;
   } else {
     throw new AppError(AppErrorCode.NOT_AUTENTICATED);
   }

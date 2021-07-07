@@ -7,6 +7,7 @@ import Bcrypt from "../../src/infrastructure/crypt/bcrypt";
 export abstract class FakeObjects {
   static getTheFakeUser() {
     return { 
+      id: 0,
       email: "thide2001@gmail.com",
       name: "Thiago",
       passwordHash: "$2b$10$uwXb31Igl9Uofo.eqvceGefkQCEQtw8MkL4MeX7UPimgw51ru98WG",
