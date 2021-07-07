@@ -1,6 +1,6 @@
 import getEnvOrReturnError from "./src/infrastructure/utils/get-env-or-return-error";
 
-function getDefaultConfig() : any {
+function getDefaultConfig(rootMigrationFolderName : string) : any {
   return {
     client: "pg",
     version: "13.3",
@@ -12,18 +12,18 @@ function getDefaultConfig() : any {
       database: getEnvOrReturnError("POSTGRES_DB"),
     },
     migrations: {
-      directory: __dirname + '/src/infrastructure/repositories/knex/migrations'
+      directory: __dirname + `/${rootMigrationFolderName}/infrastructure/repositories/knex/migrations`
     },
   }
 }
 
 export default {
   test: {
-    ...getDefaultConfig(),
+    ...getDefaultConfig("src"),
     seeds: {
       directory: __dirname + '/test/repositories/knex/seeds'
     },
   },
-  development: getDefaultConfig(),
-  production: getDefaultConfig(),
+  development: getDefaultConfig("src"),
+  production: getDefaultConfig("dist/src"),
 }
