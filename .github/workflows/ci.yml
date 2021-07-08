@@ -63,6 +63,7 @@ jobs:
           cd sanofiAlmoxarifado
           forever stopall
           git pull
+          env
           npm i
           npm run build
           npm run migrate
