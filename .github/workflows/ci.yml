@@ -53,7 +53,7 @@ jobs:
         port: 22
         script_stop: true
         script: |
-          ./etc/profile.d/app-env.sh
+          /etc/profile.d/app-env.sh
           cd sanofiAlmoxarifado
           forever stopall
           git pull
