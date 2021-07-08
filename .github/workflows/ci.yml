@@ -46,24 +46,16 @@ jobs:
     steps:
     - name: Usando ssh
       uses: appleboy/ssh-action@master
-      env: 
-        NODE_ENV: production
-        POSTGRES_HOST: yanksolutions.postgresql.dbaas.com.br
-        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        POSTGRES_USER: yanksolutions
-        POSTGRES_DB: yanksolutions
       with:
         host: vps18215.publiccloud.com.br
         username: root
         password: ${{ secrets.PASSWORD }}
         port: 22
-        envs: NODE_ENV,POSTGRES_HOST,POSTGRES_PASSWORD,POSTGRES_USER,POSTGRES_DB
         script_stop: true
         script: |
           cd sanofiAlmoxarifado
           forever stopall
           git pull
-          env
           npm i
           npm run build
           npm run migrate
