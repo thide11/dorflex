@@ -39,3 +39,22 @@ jobs:
         run: npm ci
       - name: Rodar testes 
         run: npm t
+  autodeploy:
+    name: Acesso SSH
+    runs-on: ubuntu-latest
+    steps:
+    - name: Usando ssh
+      uses: appleboy/ssh-action@master
+      with:
+        host: vps18215.publiccloud.com.br
+        username: root
+        password: ${{ secrets.PASSWORD }}
+        port: 22
+        script: |
+          cd sanofiAlmoxarifado
+          forever stopAll
+          git pull
+          npm i
+          npm run build
+          npm run migrate
+          forever start dist/src/index.js
