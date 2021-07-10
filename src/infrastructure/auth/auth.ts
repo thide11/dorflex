@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import knex from "knex"
 import UserRepository from "../../domain/repositories/user-repository";
 import bcrypt from "bcrypt";
@@ -32,11 +32,16 @@ export default class Auth {
     if(isDevEnvironment() && token == testToken()) {
       return testUser();
     }
-    const data = jwt.verify(token, privateKey);
-    if(data == null) {
-      throw new AppError(AppErrorCode.INVALID_TOKEN);
+    try {
+      const data = jwt.verify(token, privateKey);
+      return data as JWTUserData;
+    } catch (e) {
+      if(e instanceof JsonWebTokenError) {
+        throw new AppError(AppErrorCode.INVALID_TOKEN);
+      } else {
+        throw new Error("Erro inesperado");
+      }
     }
-    return data as JWTUserData;
   }
 
   async autenticate(email : string, plainPassword : string) {
@@ -59,7 +64,7 @@ export default class Auth {
         role: "administrator",
         expirationToken,
       }, 
-      privateKey
+      privateKey 
     );
   }
 }

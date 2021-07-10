@@ -15,6 +15,8 @@ import { Knex } from "knex";
 import { generateImportRoutes } from "./routes/import/import-routes";
 import RequesterKnexRepository from "../repositories/knex/requester-knex-repository";
 import { generateRequesterRoutes } from "./routes/requester/requester-routes";
+import { generateItemRoutes } from "./routes/item/item-routes";
+import ItemKnexRepository from "../repositories/knex/item-knex-repository";
 const bodyParser = require('body-parser');
 var fileupload = require("express-fileupload");
 
@@ -29,6 +31,7 @@ export function runServer(knexArg? : Knex) {
   const areaKnexRepository = new AreaKnexRepository(knex);
   const costCenterKnexRepository = new CostCenterKnexRepository(knex);
   const requesterKnexRepository = new RequesterKnexRepository(areaKnexRepository, knex);
+  const itemKnexRepository = new ItemKnexRepository(knex);
 
   const auth = new Auth(
     userKnexRepository,
@@ -67,6 +70,9 @@ export function runServer(knexArg? : Knex) {
 
   const requesterRoutes = generateRequesterRoutes(requesterKnexRepository);
   app.use('/requester', requesterRoutes);
+
+  const itemRoutes = generateItemRoutes(itemKnexRepository);
+  app.use('/item', itemRoutes);
 
   if(getEnvOrReturnError("NODE_ENV") != "test") {
     console.log("Dando bind na porta")

@@ -7,6 +7,7 @@ import integrationAuthTests from "./integration-auth-tests";
 import testToken from "../../src/infrastructure/utils/test-token";
 import integrationRequesterTests from "./integration-requester-tests";
 import integrationImportTests from "./integration-import-tests";
+import integrationItemTests from "./integration-item-tests";
 
 process.env.NODE_ENV = 'test';
 
@@ -29,6 +30,7 @@ describe("Testes de crud do usuario", () => {
   integrationAreaTests(knex, app, authToken);
   integrationAuthTests(knex, app, authToken);
   integrationRequesterTests(knex, app, authToken);
+  integrationItemTests(knex, app, authToken);
 
   afterEach(async () => {
     await knex.migrate.rollback()

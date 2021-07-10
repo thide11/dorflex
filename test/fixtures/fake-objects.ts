@@ -3,6 +3,7 @@ import Area from "../../src/domain/models/area";
 import Requester from "../../src/domain/models/requester";
 import User from "../../src/domain/models/user";
 import Bcrypt from "../../src/infrastructure/crypt/bcrypt";
+import Item from "../../src/domain/models/item";
 
 export abstract class FakeObjects {
   static getTheFakeUser() {
@@ -54,5 +55,29 @@ export abstract class FakeObjects {
       name: faker.name.findName(),
       area_name: faker.datatype.string(),
     } as Requester
+  }
+  static getTheFakeItem() {
+    return {
+      sap_atena: "BR550235235",
+      sap_br: "GGERMJGEUNGE",
+      family: "Cosméticos",
+      area_name: this.getTheFakeArea().name,
+      correction_factor: 10,
+      description: "Este é um item falso",
+      net_value: 0.001,
+      blocked: false,
+    } as Item
+  }
+  static generateFakeItem() {
+    return {
+      sap_atena: "BR550235235",
+      sap_br: "GGERMJGEUNGE",
+      family: faker.datatype.string(),
+      blocked: faker.datatype.boolean(),
+      area_name: this.getTheFakeArea().name,
+      correction_factor: faker.datatype.number(100),
+      description: faker.datatype.string(),
+      net_value: faker.datatype.float(),
+    } as Item
   }
 }
