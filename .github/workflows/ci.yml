@@ -54,6 +54,7 @@ jobs:
         script_stop: true
         script: |
           /etc/profile.d/app-env.sh
+          env
           cd sanofiAlmoxarifado
           forever stopall
           git pull

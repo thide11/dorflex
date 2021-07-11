@@ -9,8 +9,8 @@ export default class ItemKnexRepository extends BaseKnexRepository<Item> impleme
       sap_br : 'string',
       description : 'string',
       family : 'string',
-      net_value : 'number|required',
-      correction_factor : 'number',
+      net_value : 'numeric|required',
+      correction_factor : 'integer',
       blocked : "boolean|required",
       area_name : "string|required", 
     }

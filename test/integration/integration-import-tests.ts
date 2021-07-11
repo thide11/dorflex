@@ -10,6 +10,7 @@ import { FakeObjects } from "../fixtures/fake-objects";
 import Requester from "../../src/domain/models/requester";
 import Area from "../../src/domain/models/area";
 import ExcelUploadsKnexRepository from "../../src/infrastructure/repositories/knex/excel-uploads-knex-repository";
+import ItemKnexRepository from "../../src/infrastructure/repositories/knex/item-knex-repository";
 
 export default function integrationImportTests(knex : Knex, app : any, authToken : string) {
 
@@ -79,5 +80,73 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
       expect(areas[1].name).toBe("Sólidos");
       expect(areas[2].name).toBe("Hormônios");
     })
+
+
+    describe("Importação da planilha anual", () => {
+      
+      test('Deve ler arquivo excel de itens e retornar 400 pois possui area que não existe', async () => {
+
+        const filename = "upload-anual-areas-invalidas.xlsx"
+
+        const response = await supertest(app)
+            .post('/import')
+            .field('type', 'itens-year-excel')
+            .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
+            .set("Authorization", `Bearer ${authToken}`)
+
+            expect(response.text).toEqual(
+              AppError.errorCodeToMessage(AppErrorCode.UNKNOWN_AREA_NAME)
+            );
+            expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      });
+
+      test('Deve ler arquivo excel de itens e importar', async () => {
+
+        const filename = "upload-anual.xlsx"
+
+        const response = await supertest(app)
+            .post('/import')
+            .field('type', 'itens-year-excel')
+            .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
+            .set("Authorization", `Bearer ${authToken}`)
+
+            expect(response.statusCode).toEqual(StatusCodes.OK);
+            const itemRepository = new ItemKnexRepository(knex);
+            expect(await itemRepository.list()).toStrictEqual([
+              FakeObjects.getTheFakeItem(),
+              {
+                "area_name": "Injetáveis",
+                "blocked": false,
+                "correction_factor": 0,
+                "description": "MANGUEIRA KANAFLEX KV \"2\"",
+                "family": null,
+                "net_value": 1.10965956e-7,
+                "sap_atena": "BR5500333",
+                "sap_br": null,
+              },
+              {
+                "area_name": "Injetáveis",
+                "blocked": false,
+                "correction_factor": 0,
+                "description": "ENVELOPE DOSSIÊ DO LOTE",
+                "family": null,
+                "net_value": 0.000022854494,
+                "sap_atena": "BR5500213",
+                "sap_br": null,
+              },
+              {
+                "area_name": "Injetáveis",
+                "blocked": false,
+                "correction_factor": -13,
+                "description": "LUVA CIRURG DESC LTX M",
+                "family": null,
+                "net_value": 0.000016897193,
+                "sap_atena": "BR5500081",
+                "sap_br": null,
+              },
+            ])
+      });
+    })
+
   });
 }

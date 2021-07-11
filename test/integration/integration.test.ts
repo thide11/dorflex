@@ -27,10 +27,10 @@ describe("Testes de crud do usuario", () => {
   });
 
   integrationImportTests(knex, app, authToken);
-  integrationAreaTests(knex, app, authToken);
-  integrationAuthTests(knex, app, authToken);
-  integrationRequesterTests(knex, app, authToken);
-  integrationItemTests(knex, app, authToken);
+  // integrationAreaTests(knex, app, authToken);
+  // integrationAuthTests(knex, app, authToken);
+  // integrationRequesterTests(knex, app, authToken);
+  // integrationItemTests(knex, app, authToken);
 
   afterEach(async () => {
     await knex.migrate.rollback()

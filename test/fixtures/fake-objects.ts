@@ -70,8 +70,8 @@ export abstract class FakeObjects {
   }
   static generateFakeItem() {
     return {
-      sap_atena: "BR550235235",
-      sap_br: "GGERMJGEUNGE",
+      sap_atena: faker.datatype.string(),
+      sap_br: faker.datatype.string(),
       family: faker.datatype.string(),
       blocked: faker.datatype.boolean(),
       area_name: this.getTheFakeArea().name,

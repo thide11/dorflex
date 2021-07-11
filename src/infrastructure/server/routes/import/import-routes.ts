@@ -2,10 +2,12 @@ import express from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Knex } from 'knex';
 import BaseExcelImporter from '../../../../domain/excel-importers/base-excel-importer';
+import ItensYearExcelImporter from '../../../excel-importers/itens-year-excel-importer';
 import RequesterExcelImporter from '../../../excel-importers/requester-excel-importer';
 import ExcelReader from '../../../excel/excel-reader';
 import AreaKnexRepository from '../../../repositories/knex/area-knex-repository';
 import ExcelUploadsKnexRepository from '../../../repositories/knex/excel-uploads-knex-repository';
+import ItemKnexRepository from '../../../repositories/knex/item-knex-repository';
 import RequesterKnexRepository from '../../../repositories/knex/requester-knex-repository';
 import { getAuthDataOrThrow, requireLoggedUserToBeAdministradorOrThrow } from '../../utils/auth-utils';
 import { wrapRoutesErrorHandler } from '../../utils/wrap-routes-error-handler';
@@ -26,9 +28,11 @@ export function generateImportRoutes(knex : Knex) {
       const areaRepository = new AreaKnexRepository(knex);
       const requesterRepository = new RequesterKnexRepository(areaRepository, knex);
       const excelUploadsRepository = new ExcelUploadsKnexRepository(knex);
+      const itemRepository = new ItemKnexRepository(knex);
 
       const typeToExcelImporter : { [key: string] : BaseExcelImporter } = {
         "requester-excel": new RequesterExcelImporter(requesterRepository, excelUploadsRepository, excelReader),
+        "itens-year-excel": new ItensYearExcelImporter(areaRepository, itemRepository, excelUploadsRepository, excelReader),
       }
 
       const type = req.body.type;
