@@ -53,12 +53,10 @@ jobs:
         port: 22
         script_stop: true
         script: |
-          /etc/profile.d/app-env.sh
-          env
           cd sanofiAlmoxarifado
           forever stopall
           git pull
           npm i
           npm run build
           npm run migrate
-          forever start dist/src/index.js
+          dotenv forever start dist/src/index.js
