@@ -10,4 +10,14 @@ export async function seed(knex: Knex): Promise<void> {
     await knex("area").insert(FakeObjects.getTheFakeArea());
     await knex("requester").insert(FakeObjects.getTheFakeRequester());
     await knex("itens").insert(FakeObjects.getTheFakeItem());
+    await knex("cost_center").insert(FakeObjects.getTheFakeCostCenter());
+    const solicitation = FakeObjects.getTheFakeSolicitation()
+    delete solicitation.itens
+    await knex("solicitation").insert(solicitation);
+
+    // camelCase
+    // snake_case
+    // PascalCase
+    // kebab-case
+
 };

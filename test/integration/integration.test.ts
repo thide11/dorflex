@@ -8,9 +8,9 @@ import testToken from "../../src/infrastructure/utils/test-token";
 import integrationRequesterTests from "./integration-requester-tests";
 import integrationImportTests from "./integration-import-tests";
 import integrationItemTests from "./integration-item-tests";
+import integrationSolicitationTests from "./integration-solicitation-tests";
 
 process.env.NODE_ENV = 'test';
-
 
 describe("Testes de crud do usuario", () => {
   const knex = getKnexConnection();
@@ -26,11 +26,12 @@ describe("Testes de crud do usuario", () => {
     await knex.seed.run();
   });
 
+  integrationSolicitationTests(knex, app, authToken);
   integrationImportTests(knex, app, authToken);
-  // integrationAreaTests(knex, app, authToken);
-  // integrationAuthTests(knex, app, authToken);
-  // integrationRequesterTests(knex, app, authToken);
-  // integrationItemTests(knex, app, authToken);
+  integrationAreaTests(knex, app, authToken);
+  integrationAuthTests(knex, app, authToken);
+  integrationRequesterTests(knex, app, authToken);
+  integrationItemTests(knex, app, authToken);
 
   afterEach(async () => {
     await knex.migrate.rollback()

@@ -17,6 +17,10 @@ import RequesterKnexRepository from "../repositories/knex/requester-knex-reposit
 import { generateRequesterRoutes } from "./routes/requester/requester-routes";
 import { generateItemRoutes } from "./routes/item/item-routes";
 import ItemKnexRepository from "../repositories/knex/item-knex-repository";
+import { generateSolicitationRoutes } from "./routes/solicitation/solicitation-routes";
+import SolicitationKnexRepository from "../repositories/knex/solicitation-knex-repository";
+import SolicitationItemKnexRepository from "../repositories/knex/solicitation-item-knex-repository";
+import cors from "cors"
 const bodyParser = require('body-parser');
 var fileupload = require("express-fileupload");
 
@@ -25,6 +29,7 @@ export function runServer(knexArg? : Knex) {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
   app.use(fileupload());
+  app.use(cors())
 
   const knex = knexArg ?? getKnexConnection();
   const userKnexRepository = new UserKnexRepository(knex);
@@ -32,6 +37,8 @@ export function runServer(knexArg? : Knex) {
   const costCenterKnexRepository = new CostCenterKnexRepository(knex);
   const requesterKnexRepository = new RequesterKnexRepository(areaKnexRepository, knex);
   const itemKnexRepository = new ItemKnexRepository(knex);
+  const solicitationItemRepository = new SolicitationItemKnexRepository(knex)
+  const solicitationKnexRepository = new SolicitationKnexRepository(solicitationItemRepository, knex);
 
   const auth = new Auth(
     userKnexRepository,
@@ -73,6 +80,9 @@ export function runServer(knexArg? : Knex) {
 
   const itemRoutes = generateItemRoutes(itemKnexRepository);
   app.use('/item', itemRoutes);
+
+  const solicitationRoutes = generateSolicitationRoutes(solicitationKnexRepository);
+  app.use("/solicitation", solicitationRoutes)
 
   if(getEnvOrReturnError("NODE_ENV") != "test") {
     console.log("Dando bind na porta")

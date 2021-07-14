@@ -1,12 +1,8 @@
-import getKnexConnection from "../../src/infrastructure/repositories/knex/get-knex-connection";
-import { runServer } from "../../src/infrastructure/server/server";
 import supertest from "supertest";
 import { StatusCodes } from "http-status-codes";
 import { FakeObjects } from "../fixtures/fake-objects";
-import faker from "faker";
 import AreaKnexRepository from "../../src/infrastructure/repositories/knex/area-knex-repository";
 import { Knex } from "knex";
-import simpleCrudTests from "./simple-crud-tests";
 import RequesterKnexRepository from "../../src/infrastructure/repositories/knex/requester-knex-repository";
 import ItemKnexRepository from "../../src/infrastructure/repositories/knex/item-knex-repository";
 
