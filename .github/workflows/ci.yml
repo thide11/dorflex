@@ -55,7 +55,8 @@ jobs:
         script: |
           cd sanofiAlmoxarifado
           forever stopall
-          git pull
+          git fetch --all
+          git reset --hard origin/master
           npm i
           npm run build
           npm run migrate
