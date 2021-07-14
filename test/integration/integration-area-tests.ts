@@ -5,11 +5,17 @@ import AreaKnexRepository from "../../src/infrastructure/repositories/knex/area-
 import { Knex } from "knex";
 import RequesterKnexRepository from "../../src/infrastructure/repositories/knex/requester-knex-repository";
 import ItemKnexRepository from "../../src/infrastructure/repositories/knex/item-knex-repository";
+import SolicitationItemKnexRepository from "../../src/infrastructure/repositories/knex/solicitation-item-knex-repository";
+import SolicitationKnexRepository from "../../src/infrastructure/repositories/knex/solicitation-knex-repository";
+import CostCenterKnexRepository from "../../src/infrastructure/repositories/knex/cost-center-knex-repository";
 
 export default function integrationAreaTests(knex : Knex, app : any, authToken : string) {
   const areaRepository = new AreaKnexRepository(knex);
   const requesterRepository = new RequesterKnexRepository(areaRepository, knex);
   const itemRepository = new ItemKnexRepository(knex);
+  const solicitationItemRepository = new SolicitationItemKnexRepository(knex);
+  const solicitationRepository = new SolicitationKnexRepository(solicitationItemRepository, knex);
+  const costCenterRepository = new CostCenterKnexRepository(knex);
 
   describe("Deve testar o funcionamento da área", () => {
     describe("Funcoes de listagem", () => {
@@ -81,6 +87,8 @@ export default function integrationAreaTests(knex : Knex, app : any, authToken :
     });
     describe("Funcao de deletar um", () => {
       test("DELETE /area/:id", async () => {
+        await solicitationRepository.delete(FakeObjects.getTheFakeSolicitation().id);
+        await costCenterRepository.delete(FakeObjects.getTheFakeCostCenter().code);
         await requesterRepository.delete(FakeObjects.getTheFakeRequester().id);
         await itemRepository.delete(FakeObjects.getTheFakeItem().sap_atena);
 

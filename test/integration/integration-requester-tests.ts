@@ -4,6 +4,8 @@ import supertest from "supertest";
 import Requester from "../../src/domain/models/requester";
 import AreaKnexRepository from "../../src/infrastructure/repositories/knex/area-knex-repository";
 import RequesterKnexRepository from "../../src/infrastructure/repositories/knex/requester-knex-repository";
+import SolicitationItemKnexRepository from "../../src/infrastructure/repositories/knex/solicitation-item-knex-repository";
+import SolicitationKnexRepository from "../../src/infrastructure/repositories/knex/solicitation-knex-repository";
 import { FakeObjects } from "../fixtures/fake-objects";
 
 export default function integrationRequesterTests(knex : Knex, app : any, authToken : string) {
@@ -11,6 +13,10 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
   const baseEndpoint = "requester";
   const exampleModel = FakeObjects.getTheFakeRequester();
   const exampleGeneratedModel = FakeObjects.generateFakeRequester();
+
+  const solicitationItemRepository = new SolicitationItemKnexRepository(knex);
+  const solicitationRepository = new SolicitationKnexRepository(solicitationItemRepository, knex);
+  
   const areaRepository = new AreaKnexRepository(knex);
   const requesterRepository = new RequesterKnexRepository(areaRepository, knex);
 
@@ -132,6 +138,8 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
       })
 
       test(`DELETE /${baseEndpoint}/:id com id válido`, async () => {
+        await solicitationRepository.delete(FakeObjects.getTheFakeSolicitation().id);
+
         const response = await supertest(app)
           .delete(`/${baseEndpoint}/${exampleModel.id}`)
           .set("Authorization", `Bearer ${authToken}`)
