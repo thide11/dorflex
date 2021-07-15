@@ -21,15 +21,17 @@ import { generateSolicitationRoutes } from "./routes/solicitation/solicitation-r
 import SolicitationKnexRepository from "../repositories/knex/solicitation-knex-repository";
 import SolicitationItemKnexRepository from "../repositories/knex/solicitation-item-knex-repository";
 import cors from "cors"
+import configureDocs from "./docs";
 const bodyParser = require('body-parser');
 var fileupload = require("express-fileupload");
 
 export function runServer(knexArg? : Knex) {
   const app = express()
+  
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
   app.use(fileupload());
-  app.use(cors())
+  app.use(cors())  
 
   const knex = knexArg ?? getKnexConnection();
   const userKnexRepository = new UserKnexRepository(knex);
@@ -86,10 +88,12 @@ export function runServer(knexArg? : Knex) {
 
   if(getEnvOrReturnError("NODE_ENV") != "test") {
     console.log("Dando bind na porta")
-    const port : number = Number(getEnvOrReturnError("PORT"));
-    app.listen(port, () => {
-      console.log(`Servidor rodando na porta ${port}`)
-    });
+    // configureDocs(app).then(() => {
+      const port : number = Number(getEnvOrReturnError("PORT"));
+      app.listen(port, () => {
+        console.log(`Servidor rodando na porta ${port}`)
+      });
+    // });
   }
 
   return app;

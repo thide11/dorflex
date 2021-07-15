@@ -12,8 +12,8 @@ export default
 
   protected getValidatorRules() : Validator.Rules {
     return {
-        amount: "number|required",
-        solicitation_id: "number|required",
+        amount: "integer|required",
+        solicitation_id: "integer|required",
     }
   };
 
@@ -21,8 +21,6 @@ export default
     return "solicitation_item";
   }
   protected getPrimaryKeyName(): string {
-    return "id";
+    return "solicitation_id";
   }
-
-
 }

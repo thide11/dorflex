@@ -21,14 +21,14 @@ export default function integrationItemTests(knex : Knex, app : any, authToken :
     })
     
     test('GET /item with autentication', async () => {
-        const response = await supertest(app)
-          .get(`/item`)
-          .set("Authorization", `Bearer ${authToken}`);
-            
-        expect(response.statusCode).toEqual(StatusCodes.OK);
-        expect(response.body).toEqual([
-          FakeObjects.getTheFakeItem()
-        ]);
+      const response = await supertest(app)
+        .get(`/item`)
+        .set("Authorization", `Bearer ${authToken}`);
+          
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+      expect(response.body).toEqual([
+        FakeObjects.getTheFakeItem()
+      ]);
     })
   })
 

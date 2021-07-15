@@ -87,7 +87,8 @@ export default function integrationAreaTests(knex : Knex, app : any, authToken :
     });
     describe("Funcao de deletar um", () => {
       test("DELETE /area/:id", async () => {
-        await solicitationRepository.delete(FakeObjects.getTheFakeSolicitation().id);
+        const solicitationId = FakeObjects.getTheFakeSolicitation().id
+        await solicitationRepository.delete(solicitationId);
         await costCenterRepository.delete(FakeObjects.getTheFakeCostCenter().code);
         await requesterRepository.delete(FakeObjects.getTheFakeRequester().id);
         await itemRepository.delete(FakeObjects.getTheFakeItem().sap_atena);

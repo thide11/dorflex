@@ -34,28 +34,49 @@ export default class SolicitationKnexRepository extends BaseKnexRepository<Solic
     throw new AppError(AppErrorCode.NOT_FOUND);
   }
 
-  async insert(data: Solicitation): Promise<Solicitation> {
-    this.validateData(data);
-    for(const item of data.itens) {
-      console.log(item)
-    }
+  async insert(solicitation: Solicitation): Promise<Solicitation> {
+    this.validateData(solicitation);
+    const itens = solicitation.itens;
+
+    const solicitationWithoutItens = {...solicitation}
     //@ts-ignore
-    delete data.itens
-    const generatedKey = await this.getKnexQuery().insert(data, [this.getPrimaryKeyName()]);
-    return {
-      ...data,
-      ...generatedKey[0],
-    };
+    delete solicitationWithoutItens.itens
+    try {
+      const generatedKey = await this.getKnexQuery().insert(solicitationWithoutItens, [this.getPrimaryKeyName()]);
+      for(const item of itens) {
+        item.solicitation_id = generatedKey[0].id;
+        await this.solicitationItemRepository.insert(item);
+      }
+  
+      return {
+        ...solicitation,
+        ...generatedKey[0],
+      };
+    } catch (e) {
+      if(e?.code == '23503') {
+        throw new AppError(AppErrorCode.INVALID_DATA, `Id de chave estrangeira inválida: ${e.detail}`)
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  async delete(id: any): Promise<void> {
+    await this.solicitationItemRepository.delete(id);
+    const affectedRows = await this.getKnexQuery().where(this.getPrimaryKeyName(), id).delete();
+    if(affectedRows == 0) {
+      throw new AppError(AppErrorCode.NOT_FOUND);
+    }
   }
 
   protected getValidatorRules() : Validator.Rules {
     return {
-      area_name: 'string|required',
       id: 'integer',
       user_id: "integer|required",
       requester_id: "integer|required",
       order_number: "string|required",
-      cost_center_code: 'integer|required'
+      cost_center_code: 'integer|required',
+      itens: "array|required"
     }
   }
   

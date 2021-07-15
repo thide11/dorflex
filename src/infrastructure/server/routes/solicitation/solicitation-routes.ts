@@ -14,8 +14,8 @@ export function generateSolicitationRoutes(solicitationRepository : Solicitation
         requireLoggedUserToBeAdministradorOrThrow(user);
         const clientData = req.body;
         const data = await solicitationRepository.insert({
-          name: clientData.name,
-          area_name: clientData.area_name,
+          ...clientData,
+          user_id: user.id
         });
         res.status(StatusCodes.CREATED).send(data);
       });

@@ -3,7 +3,7 @@ import { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
     await knex.schema.createTable('solicitation', (table) => {
-        table.integer("id").primary()
+        table.increments("id").primary()
         table.integer("user_id")
         table.dateTime("created_date")
         table.integer("requester_id")

@@ -7,10 +7,9 @@ import { StatusCodes } from "http-status-codes";
 import RequesterKnexRepository from "../../src/infrastructure/repositories/knex/requester-knex-repository";
 import AreaKnexRepository from "../../src/infrastructure/repositories/knex/area-knex-repository";
 import { FakeObjects } from "../fixtures/fake-objects";
-import Requester from "../../src/domain/models/requester";
-import Area from "../../src/domain/models/area";
 import ExcelUploadsKnexRepository from "../../src/infrastructure/repositories/knex/excel-uploads-knex-repository";
 import ItemKnexRepository from "../../src/infrastructure/repositories/knex/item-knex-repository";
+import { createErrorBody } from "../../src/infrastructure/server/utils/wrap-routes-error-handler"
 
 export default function integrationImportTests(knex : Knex, app : any, authToken : string) {
 
@@ -31,7 +30,11 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
           .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", "random-file.txt"))
           .set("Authorization", `Bearer ${authToken}`)
 
-      expect(response.text).toEqual(AppError.errorCodeToMessage(AppErrorCode.EXPECTED_EXCEL_FILE));
+      expect(JSON.parse(response.text)).toEqual(
+        createErrorBody(
+          AppError.errorCodeToMessage(AppErrorCode.EXPECTED_EXCEL_FILE)
+        )
+      );
       expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
     })
 
@@ -94,8 +97,10 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
             .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
             .set("Authorization", `Bearer ${authToken}`)
 
-            expect(response.text).toEqual(
-              AppError.errorCodeToMessage(AppErrorCode.UNKNOWN_AREA_NAME)
+            expect(JSON.parse(response.text)).toEqual(
+              createErrorBody(
+                AppError.errorCodeToMessage(AppErrorCode.UNKNOWN_AREA_NAME)
+              )
             );
             expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       });

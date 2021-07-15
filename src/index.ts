@@ -2,6 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 import { runServer } from "./infrastructure/server/server"
 
-(async function () {
+(async function () { 
   await runServer();
 })();

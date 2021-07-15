@@ -26,4 +26,5 @@ export default {
   },
   development: getDefaultConfig("src"),
   production: getDefaultConfig("dist/src"),
+  log: "verbose"
 }

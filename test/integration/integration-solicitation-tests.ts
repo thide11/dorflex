@@ -8,90 +8,120 @@ import RequesterKnexRepository from "../../src/infrastructure/repositories/knex/
 import { FakeObjects } from "../fixtures/fake-objects";
 import SolicitationKnexRepository from "../../src/infrastructure/repositories/knex/solicitation-knex-repository";
 import SolicitationItemKnexRepository from "../../src/infrastructure/repositories/knex/solicitation-item-knex-repository";
+import SolicitationItem from "../../src/domain/models/solicitation-item";
+import Solicitation from "../../src/domain/models/solicitation";
 
 export default function aintegrationSolicitationTests(knex : Knex, app : any, authToken : string) {
-  // const baseEndpoint = "solicitation";
-  // const solicitationItemRepository = new SolicitationItemKnexRepository(knex)
-  // const solicitationRepository = new SolicitationKnexRepository(solicitationItemRepository, knex);
-  // const exampleModel = FakeObjects.getTheFakeSolicitation();
+  const baseEndpoint = "solicitation";
+  const solicitationItemRepository = new SolicitationItemKnexRepository(knex)
+  const solicitationRepository = new SolicitationKnexRepository(solicitationItemRepository, knex);
+  const exampleModel = FakeObjects.getTheFakeSolicitation();
+  const exampleGeneratedModel = FakeObjects.generateFakeSolicitation();
 
-  // const exampleGeneratedModel = FakeObjects.getTheFakeSolicitation();
+  function removeUnpredictableKeys(element : any) {
+    //@ts-ignore
+    delete element.created_date
+    element.itens = element.itens?.map((e : SolicitationItem) => {
+      //@ts-ignore
+      delete e.solicitation_id;
+      return e;
+    })
+    return element
+  }
 
-  // describe("Deve testar o funcionamento da solicitacao", () => {
-  //   describe("Funcoes de listagem", () => {
-  //     test(`GET /${baseEndpoint} without autentication`, async () => {
-  //         const response = await supertest(app)
-  //           .get(`/${baseEndpoint}`)
+  describe("Deve testar o funcionamento da solicitacao", () => {
+    describe("Funcoes de listagem", () => {
+      test(`GET /${baseEndpoint} without autentication`, async () => {
+          const response = await supertest(app)
+            .get(`/${baseEndpoint}`)
               
-  //         expect(response.statusCode).toEqual(StatusCodes.UNAUTHORIZED);
-  //     })
-  //     test(`GET /${baseEndpoint} with autentication`, async () => {
-  //         const response = await supertest(app)
-  //           .get(`/${baseEndpoint}`)
-  //           .set("Authorization", `Bearer ${authToken}`);
+          expect(response.statusCode).toEqual(StatusCodes.UNAUTHORIZED);
+      })
+
+      test(`GET /${baseEndpoint} with autentication`, async () => {
+          const response = await supertest(app)
+            .get(`/${baseEndpoint}`)
+            .set("Authorization", `Bearer ${authToken}`);
               
-  //         expect(response.statusCode).toEqual(StatusCodes.OK);
-  //         response.body.forEach((element : any) => {
-  //           delete element.created_date
-  //         });
+          expect(response.statusCode).toEqual(StatusCodes.OK);
 
-  //         let expectedModel = {...exampleModel}
+          let expectedModel = {...exampleModel}
+          //@ts-ignore
+          delete expectedModel.created_date;
 
-  //         delete expectedModel.created_date;
-  //         console.log(expectedModel)
-  //         expect(response.body).toStrictEqual([
-  //           exampleModel
-  //         ]);
-  //     })
-  //   })
+          const responseFiltered = response.body.map(removeUnpredictableKeys)
 
-  //   describe("Funcao de exibir um", () => {
-  //     test(`GET /${baseEndpoint}/:id expecting not found`, async () => {
-  //         await supertest(app)
-  //           .get(`/${baseEndpoint}/20`)
-  //           .set("Authorization", `Bearer ${authToken}`)
-  //           .expect(StatusCodes.NOT_FOUND);
-  //     })
+          // expectedModel.id = 1;
+          expect(
+            responseFiltered
+          ).toEqual([
+            expectedModel
+          ]);
+      })
+    })
 
-  //     test(`GET /${baseEndpoint}/:id expecting data`, async () => {
-  //       //console.log(exampleModel)
-  //       const modelDb = await solicitationRepository.get(10)
-  //       console.log(modelDb)
-        
-        
-  //       // .then(e => console.log(e))
+    // describe("Funcao de exibir um", () => {
+    //   test(`GET /${baseEndpoint}/:id expecting not found`, async () => {
+    //       await supertest(app)
+    //         .get(`/${baseEndpoint}/20`)
+    //         .set("Authorization", `Bearer ${authToken}`)
+    //         .expect(StatusCodes.NOT_FOUND);
+    //   })
 
-  //       const response = await supertest(app)
-  //         .get(`/${baseEndpoint}/${exampleModel.id}`)
-  //         .set("Authorization", `Bearer ${authToken}`);
+    //   test(`GET /${baseEndpoint}/:id expecting data`, async () => {
+    //     const modelDb = await solicitationRepository.get(10)
+
+    //     const response = await supertest(app)
+    //       .get(`/${baseEndpoint}/${exampleModel.id}`)
+    //       .set("Authorization", `Bearer ${authToken}`);
     
-  //       expect(response.statusCode).toEqual(StatusCodes.OK);
-  //       expect(response.body).toEqual(exampleModel);
-  //     })
-  //   })
+    //     expect(response.statusCode).toEqual(StatusCodes.OK);
+    //     //@ts-ignore
+    //     delete response.body.created_date
+    //     //@ts-ignore
+    //     delete exampleModel.created_date;
+    //     expect(response.body).toEqual(exampleModel);
+    //   })
+    // })
 
-  //   describe("Funcao de inserir um", () => {
-  //     test(`POST /${baseEndpoint} com um nome de área inválido`, async () => {
-  //       const response = await supertest(app)
-  //         .post(`/${baseEndpoint}`)
-  //         .set("Authorization", `Bearer ${authToken}`)
-  //         .send(exampleGeneratedModel);
+    describe("Funcao de inserir um", () => {
+      test(`POST /${baseEndpoint} com um nome de solicitante inválido`, async () => {
+        const modelWithInvalidRequester = {...exampleGeneratedModel}
+        modelWithInvalidRequester.requester_id = 60;
+        const response = await supertest(app)
+          .post(`/${baseEndpoint}`)
+          .set("Authorization", `Bearer ${authToken}`)
+          .send(modelWithInvalidRequester);
         
-  //       expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-  //     })
+        expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      })
 
-  //     test(`POST /${baseEndpoint} com um nome de área válido`, async () => {
-
-  //       const response = await supertest(app)
-  //         .post(`/${baseEndpoint}`)
-  //         .set("Authorization", `Bearer ${authToken}`)
-  //         .send(exampleGeneratedModel);
+      test(`POST /${baseEndpoint} com centro de custos inválido`, async () => {
+        const modelWithInvalidCostCenter = {...exampleGeneratedModel}
+        modelWithInvalidCostCenter.cost_center_code = 200;
+        const response = await supertest(app)
+          .post(`/${baseEndpoint}`)
+          .set("Authorization", `Bearer ${authToken}`)
+          .send(modelWithInvalidCostCenter);
         
-  //       expect(response.statusCode).toEqual(StatusCodes.CREATED);
-  //       expect(response.body.id).toEqual(1);
-  //       const list = await solicitationRepository.list();
-  //       expect(list.length).toBe(2);
-  //     })
-  //   });
-  // });
+        expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      })
+      
+      test(`POST /${baseEndpoint}`, async () => {
+        const validModel = {...exampleGeneratedModel}
+
+        const response = await supertest(app)
+          .post(`/${baseEndpoint}`)
+          .set("Authorization", `Bearer ${authToken}`)
+          .send(validModel);
+        
+        const responseFiltered = removeUnpredictableKeys(response.body)
+        expect(responseFiltered).toEqual(removeUnpredictableKeys(validModel));
+        expect(response.statusCode).toEqual(StatusCodes.CREATED);
+        // expect(response.text.id).toEqual(2);
+        const list = await solicitationRepository.list();
+        expect(list.length).toBe(2);
+      })
+    });
+  });
 }

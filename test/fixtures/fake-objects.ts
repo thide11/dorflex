@@ -6,6 +6,7 @@ import Bcrypt from "../../src/infrastructure/crypt/bcrypt";
 import Item from "../../src/domain/models/item";
 import Solicitation from "../../src/domain/models/solicitation"
 import CostCenter from "../../src/domain/models/cost-center"
+import SolicitationItem from "../../src/domain/models/solicitation-item";
 
 export abstract class FakeObjects {
   static getTheFakeUser() {
@@ -83,6 +84,14 @@ export abstract class FakeObjects {
     } as Item
   }
 
+  static getTheFakeSolicitationItem() {
+    //@ts-ignore
+    return {
+      amount: 2,
+      integer_limit_id: null,
+    } as SolicitationItem
+  }
+
   static getTheFakeCostCenter() {
     return {
       area: this.getTheFakeArea().name,
@@ -91,15 +100,30 @@ export abstract class FakeObjects {
     } as CostCenter
   }
 
+  static generateFakeSolicitation() {
+    return {
+      cost_center_code: this.getTheFakeCostCenter().code,
+      created_date: new Date(2000, 10, 20),
+      id: faker.datatype.number(),
+      order_number: faker.datatype.string(15),
+      requester_id: this.getTheFakeRequester().id,
+      user_id: this.getTheFakeUser().id,
+      itens: [
+        this.getTheFakeSolicitationItem(),
+      ],
+    } as Solicitation
+  }
   static getTheFakeSolicitation() {
     return {
       cost_center_code: this.getTheFakeCostCenter().code,
       created_date: new Date(2000, 10, 20),
-      id: 10,
       order_number: "242",
+      id: 1,
       requester_id: this.getTheFakeRequester().id,
       user_id: this.getTheFakeUser().id,
-      itens: [],
+      itens: [
+        this.getTheFakeSolicitationItem(),
+      ],
     } as Solicitation
   }
 }
