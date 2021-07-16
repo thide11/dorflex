@@ -42,7 +42,7 @@ export default function integrationAuthTests(knex : Knex, app : any, authToken :
             password: "123",
           });
   
-      expect(response.statusCode).toEqual(200);
+      expect(response.statusCode).toEqual(StatusCodes.CREATED);
       const usuarioRepository = new UserKnexRepository(knex);
       const result = usuarioRepository.getByEmail("massa@gmail.com")
       expect(result).not.toBeUndefined();
