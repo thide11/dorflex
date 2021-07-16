@@ -88,12 +88,12 @@ export function runServer(knexArg? : Knex) {
 
   if(getEnvOrReturnError("NODE_ENV") != "test") {
     console.log("Dando bind na porta")
-    // configureDocs(app).then(() => {
+    configureDocs(app).then(() => {
       const port : number = Number(getEnvOrReturnError("PORT"));
       app.listen(port, () => {
         console.log(`Servidor rodando na porta ${port}`)
       });
-    // });
+    });
   }
 
   return app;

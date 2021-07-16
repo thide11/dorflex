@@ -1,0 +1,235 @@
+openapi: 3.0.1
+info:
+  title: Api - Sanofi
+  description: 'Esta é a api do sistema de almoxarifado da [sanofi](https://www.sanofi.com.br/). Para este exemplo, você pode usar a conta com o login `teste@gmail.com` com a senha `teste`'
+  contact:
+    email: thide2001@gmail.com
+  version: 0.0.1
+servers:
+- url: http://vps18215.publiccloud.com.br
+- url: http://localhost
+tags:
+- name: Usuário
+  description: Usuarios para acesso ao sistema
+- name: Centro de Custos
+  description: Centro de custos sob controle de um gestor
+- name: Área
+  description: Categoria do produto
+- name: Autenticacao
+  description: Autenticar um usuário
+- name: Importacao
+  description: Importe planilhas excel no sistema
+paths:
+  /area/{id}:
+    get:
+      tags:
+      - Área
+      summary: Delete uma área
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      responses:
+        200:
+          description: Item deletado
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          description: O nome da área provavelmente já está atribuido em outra tabela 
+      security:
+      - usuario_administrador:
+        - write
+        - read
+    put:
+      tags:
+      - Área
+      summary: Edite uma área
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      requestBody:
+        description: Edite uma área existente
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Area'
+        required: true
+      responses:
+        200:
+          description: Edição feita com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Area'
+        400:
+          description: Provavelmente nome da área já existe
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - usuario_administrador:
+        - write
+    delete:
+      tags:
+      - Área
+      summary: Delete uma área
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      responses:
+        200:
+          description: Item deletado
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          description: O nome da área provavelmente já está atribuido em outra tabela 
+      security:
+      - usuario_administrador:
+        - write
+        - read
+  /area:
+    get:
+      tags:
+      - Área
+      summary: Lista todas as Áreas
+      responses:
+        200:
+          description: Listagem feita com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Area'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+      security:
+      - usuario_administrador:
+        - write
+        - read
+    post:
+      tags:
+      - Área
+      summary: Envia uma Área
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Area'
+      responses:
+        201:
+          description: Área criada com sucesso
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Area'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+      security:
+      - usuario_administrador:
+        - write
+        - read
+  /auth/login:
+    post:
+      tags:
+      - Autenticacao
+      summary: Autentica um usuário
+      responses:
+        200:
+          description: Usuario autenticado com sucesso
+          content:
+            application/json:
+              schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: string
+        401:
+          description: Credenciais não correspondem a nenhum usuário
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: teste@gmail.com
+                password:
+                  type: string
+                  example: senha
+components:
+  schemas:
+    
+    Area:
+      required:
+      - name
+      - solicitation_is_blocked
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int64
+        name:
+          type: string
+          example: Embutidos
+        solicitation_is_blocked:
+          type: boolean
+          example: false
+  responses:
+    BadRequest:
+      description: Algum valor enviado no body que não foi esperado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Algum erro informando porque a requisição não foi um sucesso"
+    NotFound:
+      description: O id especificado não foi encontrado no banco
+    Unauthorized:
+      description: Você não está autenticado para acessar este recurso
+    Forbidden:
+      description: Você não tem permissão suficiente para acessar este recurso
+  securitySchemes:
+    usuario_administrador:
+      type: http
+      scheme: bearer
+    usuario_almoxarifado:
+      type: http
+      scheme: bearer
+    usuario_comum:
+      type: http
+      scheme: bearer
