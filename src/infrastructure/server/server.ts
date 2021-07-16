@@ -92,7 +92,7 @@ export function runServer(knexArg? : Knex) {
           ca: fs.readFileSync(basePath + "chain.pem", 'utf8'),
         };
       } else {
-        console.log("Carregando certificado auto-assinado, navegador alertará sobre conexão insegura")
+        console.log("Carregando https com certificado auto-assinado, ignorar se navegador alertar sobre conexão insegura")
 
         options = {
           key: fs.readFileSync(path.resolve('selfsigned', 'server.key'), 'utf-8'),

@@ -46,12 +46,12 @@ export default function aintegrationSolicitationTests(knex : Knex, app : any, au
           expect(response.statusCode).toEqual(StatusCodes.OK);
 
           let expectedModel = {...exampleModel}
+
           //@ts-ignore
           delete expectedModel.created_date;
 
           const responseFiltered = response.body.map(removeUnpredictableKeys)
 
-          // expectedModel.id = 1;
           expect(
             responseFiltered
           ).toEqual([
@@ -60,29 +60,27 @@ export default function aintegrationSolicitationTests(knex : Knex, app : any, au
       })
     })
 
-    // describe("Funcao de exibir um", () => {
-    //   test(`GET /${baseEndpoint}/:id expecting not found`, async () => {
-    //       await supertest(app)
-    //         .get(`/${baseEndpoint}/20`)
-    //         .set("Authorization", `Bearer ${authToken}`)
-    //         .expect(StatusCodes.NOT_FOUND);
-    //   })
+    describe("Funcao de exibir um", () => {
+      test(`GET /${baseEndpoint}/:id expecting not found`, async () => {
+          await supertest(app)
+            .get(`/${baseEndpoint}/20`)
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(StatusCodes.NOT_FOUND);
+      })
 
-    //   test(`GET /${baseEndpoint}/:id expecting data`, async () => {
-    //     const modelDb = await solicitationRepository.get(10)
+      test(`GET /${baseEndpoint}/:id expecting data`, async () => {
+        const expectedModel = await solicitationRepository.get(exampleModel.id)
 
-    //     const response = await supertest(app)
-    //       .get(`/${baseEndpoint}/${exampleModel.id}`)
-    //       .set("Authorization", `Bearer ${authToken}`);
-    
-    //     expect(response.statusCode).toEqual(StatusCodes.OK);
-    //     //@ts-ignore
-    //     delete response.body.created_date
-    //     //@ts-ignore
-    //     delete exampleModel.created_date;
-    //     expect(response.body).toEqual(exampleModel);
-    //   })
-    // })
+        const response = await supertest(app)
+        .get(`/${baseEndpoint}/${expectedModel.id}`)
+        .set("Authorization", `Bearer ${authToken}`);
+        
+        expect(response.statusCode).toEqual(StatusCodes.OK);
+        removeUnpredictableKeys(response.body)
+        removeUnpredictableKeys(expectedModel)
+        expect(response.body).toEqual(expectedModel);
+      })
+    })
 
     describe("Funcao de inserir um", () => {
       test(`POST /${baseEndpoint} com um nome de solicitante inválido`, async () => {
@@ -118,7 +116,6 @@ export default function aintegrationSolicitationTests(knex : Knex, app : any, au
         const responseFiltered = removeUnpredictableKeys(response.body)
         expect(responseFiltered).toEqual(removeUnpredictableKeys(validModel));
         expect(response.statusCode).toEqual(StatusCodes.CREATED);
-        // expect(response.text.id).toEqual(2);
         const list = await solicitationRepository.list();
         expect(list.length).toBe(2);
       })

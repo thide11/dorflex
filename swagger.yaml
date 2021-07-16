@@ -6,8 +6,8 @@ info:
     email: thide2001@gmail.com
   version: 0.0.1
 servers:
-- url: http://vps18215.publiccloud.com.br
-- url: http://localhost
+- url: https://vps18215.publiccloud.com.br
+- url: https://localhost
 tags:
 - name: Usuário
   description: Usuarios para acesso ao sistema
