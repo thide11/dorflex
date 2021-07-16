@@ -22,6 +22,7 @@ import SolicitationKnexRepository from "../repositories/knex/solicitation-knex-r
 import SolicitationItemKnexRepository from "../repositories/knex/solicitation-item-knex-repository";
 import cors from "cors"
 import https from 'https';
+import path from 'path';
 import fs from "fs";
 import configureDocs from "./docs";
 const bodyParser = require('body-parser');
@@ -44,23 +45,10 @@ export function runServer(knexArg? : Knex) {
   const itemKnexRepository = new ItemKnexRepository(knex);
   const solicitationItemRepository = new SolicitationItemKnexRepository(knex)
   const solicitationKnexRepository = new SolicitationKnexRepository(solicitationItemRepository, knex);
-
   const auth = new Auth(
     userKnexRepository,
     new Bcrypt(),
   )
-
-  app.get("/", async (_ : any, res : any) => {
-    res.sendFile(__dirname + "/form.html");
-  })
-  
-  app.get("/registrar", async (_ : any, res : any) => {
-    res.sendFile(__dirname + "/register.html");
-  });
-
-  app.get("/painel", async (_ : any, res : any) => {
-    res.sendFile(__dirname + "/painel.html");
-  });
 
   const authMiddleware = generateAuthMiddleware(auth);
   app.use(authMiddleware);
@@ -89,23 +77,35 @@ export function runServer(knexArg? : Knex) {
   const solicitationRoutes = generateSolicitationRoutes(solicitationKnexRepository);
   app.use("/solicitation", solicitationRoutes)
 
-  if(getEnvOrReturnError("NODE_ENV") != "test") {
+  const nodeEnv = getEnvOrReturnError("NODE_ENV");
+  if(nodeEnv != "test") {
     console.log("Dando bind na porta")
     configureDocs(app).then(() => {
+      let options;
+      if(nodeEnv == "production") {
+        const basePath = '/etc/letsencrypt/live/vps18215.publiccloud.com.br/';
+        console.log(`Carregando chave ssl de producao do diretório ${basePath}`)
 
-      // var key = fs.readFileSync('selfsigned.key');
-      // var cert = fs.readFileSync('selfsigned.crt');
-      // var options = {
-      //   key: key,
-      //   cert: cert
-      // };
+        options = {
+          key: fs.readFileSync(basePath + "privkey.pem", 'utf8'),
+          cert: fs.readFileSync(basePath + "cert.pem", 'utf8'),
+          ca: fs.readFileSync(basePath + "chain.pem", 'utf8'),
+        };
+      } else {
+        console.log("Carregando certificado auto-assinado, navegador alertará sobre conexão insegura")
 
-      // var server = https.createServer(options, app);
+        options = {
+          key: fs.readFileSync(path.resolve('selfsigned', 'server.key'), 'utf-8'),
+          cert: fs.readFileSync(path.resolve('selfsigned', 'server.cert'), 'utf-8')
+        };
+      }
 
-      const port : number = Number(getEnvOrReturnError("PORT"));
-      app.listen(port, () => {
+      const port : number = Number(getEnvOrReturnError("PORT")) ?? 443;
+      const server = https.createServer(options, app);
+      server.listen(port, () => {
         console.log(`Servidor rodando na porta ${port}`)
       });
+
     });
   }
 
