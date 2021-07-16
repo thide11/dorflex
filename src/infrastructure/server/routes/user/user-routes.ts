@@ -13,10 +13,9 @@ export function generateUserRoutes(userRepository : UserRepository, auth : Auth)
 
   var router = express.Router();
 
-  router.get("/listar", async (_, res) => {
+  router.get("/", async (_, res) => {
     const usuarios = await userRepository.list()
-    console.log(usuarios)
-    res.send("Usuario listados!")
+    res.status(200).send(usuarios)
   })
 
   router.post("/", async(req, res) => {
@@ -32,7 +31,7 @@ export function generateUserRoutes(userRepository : UserRepository, auth : Auth)
         role: data.role
       } as UncryptedUser
       )
-      res.sendStatus(StatusCodes.OK);
+      res.sendStatus(StatusCodes.CREATED);
     });
   })
 

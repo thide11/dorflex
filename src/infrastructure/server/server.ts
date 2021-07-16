@@ -21,6 +21,8 @@ import { generateSolicitationRoutes } from "./routes/solicitation/solicitation-r
 import SolicitationKnexRepository from "../repositories/knex/solicitation-knex-repository";
 import SolicitationItemKnexRepository from "../repositories/knex/solicitation-item-knex-repository";
 import cors from "cors"
+import https from 'https';
+import fs from "fs";
 import configureDocs from "./docs";
 const bodyParser = require('body-parser');
 var fileupload = require("express-fileupload");
@@ -31,7 +33,8 @@ export function runServer(knexArg? : Knex) {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
   app.use(fileupload());
-  app.use(cors())  
+  app.use(cors());
+  app.use(express.static('public'));
 
   const knex = knexArg ?? getKnexConnection();
   const userKnexRepository = new UserKnexRepository(knex);
@@ -89,6 +92,16 @@ export function runServer(knexArg? : Knex) {
   if(getEnvOrReturnError("NODE_ENV") != "test") {
     console.log("Dando bind na porta")
     configureDocs(app).then(() => {
+
+      // var key = fs.readFileSync('selfsigned.key');
+      // var cert = fs.readFileSync('selfsigned.crt');
+      // var options = {
+      //   key: key,
+      //   cert: cert
+      // };
+
+      // var server = https.createServer(options, app);
+      
       const port : number = Number(getEnvOrReturnError("PORT"));
       app.listen(port, () => {
         console.log(`Servidor rodando na porta ${port}`)

@@ -1,5 +1,5 @@
 import Crypt from "../../domain/crypt/crypt";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export default class Bcrypt implements Crypt {
 
