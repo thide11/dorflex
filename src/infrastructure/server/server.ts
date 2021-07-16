@@ -34,7 +34,7 @@ export function runServer(knexArg? : Knex) {
   app.use(bodyParser.json());
   app.use(fileupload());
   app.use(cors());
-  app.use(express.static('public'));
+  app.use(express.static('public', { dotfiles: 'allow' }));
 
   const knex = knexArg ?? getKnexConnection();
   const userKnexRepository = new UserKnexRepository(knex);
@@ -101,7 +101,7 @@ export function runServer(knexArg? : Knex) {
       // };
 
       // var server = https.createServer(options, app);
-      
+
       const port : number = Number(getEnvOrReturnError("PORT"));
       app.listen(port, () => {
         console.log(`Servidor rodando na porta ${port}`)
