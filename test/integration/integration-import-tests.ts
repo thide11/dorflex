@@ -52,7 +52,6 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
     })
 
     test('Deve ler arquivo excel de solicitantes', async () => {
-
       const filename = "upload-solicitante.xlsx"
 
       const response = await supertest(app)
@@ -98,6 +97,43 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
       expect(areas[2].name).toBe("Hormônios");
     })
 
+    describe("Importação da planilha mensal", () => {
+      test("Deve ler a planilha mensal com algumas áreas faltando", async () => {
+        const filename = "upload-mensal.xlsx"
+        const response = await supertest(app)
+            .post('/import')
+            .field('type', 'montly-excel')
+            .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
+            .set("Authorization", `Bearer ${authToken}`)
+  
+        expect(response.body).toEqual(
+          createErrorBody("Erro: Área com o nome Calçados desconhecida, ela está incluida no sistema?")
+        );
+        expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+  
+        await checkIfUploadIsOnExcelUploads(filename);
+      })
+      test("Deve ler a planilha mensal com as áreas criadas anteriormente", async () => {
+
+        const areaRepository = new AreaKnexRepository(knex);
+
+        await areaRepository.insert({
+          name: "Calçados",
+          solicitation_is_blocked: false,
+        })
+
+        const filename = "upload-mensal.xlsx"
+        const response = await supertest(app)
+            .post('/import')
+            .field('type', 'montly-excel')
+            .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
+            .set("Authorization", `Bearer ${authToken}`)
+  
+        expect(response.statusCode).toEqual(StatusCodes.CREATED);
+  
+        await checkIfUploadIsOnExcelUploads(filename);
+      })
+    });
 
     describe("Importação da planilha de centros de custos", () => {
       test('Deve ler a planilha', async () => {
@@ -162,9 +198,7 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
             .set("Authorization", `Bearer ${authToken}`)
 
             expect(JSON.parse(response.text)).toEqual(
-              createErrorBody(
-                AppError.errorCodeToMessage(AppErrorCode.UNKNOWN_AREA_NAME)
-              )
+              createErrorBody("Erro: Área com o nome Líquidos desconhecida")
             );
             expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       });

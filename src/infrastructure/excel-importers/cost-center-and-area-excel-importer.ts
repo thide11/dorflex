@@ -8,6 +8,8 @@ import ExcelReader from "../excel/excel-reader";
 
 export default class CostCenterAndAreaExcelImporter extends BaseExcelImporter {
 
+  public getFormalName: string = "Upload de Centro de Custos e Área";
+
   protected async saveRegister(data: any[]): Promise<void> {
     
     const areas = await this.areaRepository.list();

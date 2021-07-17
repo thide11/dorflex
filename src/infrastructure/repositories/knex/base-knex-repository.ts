@@ -60,7 +60,7 @@ export default abstract class BaseKnexRepository<T> implements BaseRepository<T>
     return this.getKnexQuery().select();
   }
   
-  async insert(data: T): Promise<T> {
+  async insert(data: any): Promise<T> {
     this.validateData(data);
     const generatedKey = await this.getKnexQuery().insert(data, [this.getPrimaryKeyName()]);
     return {

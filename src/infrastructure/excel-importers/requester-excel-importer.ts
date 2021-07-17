@@ -4,6 +4,9 @@ import RequesterRepository from "../../domain/repositories/requester-repository"
 import ExcelReader from "../excel/excel-reader";
 
 export default class RequesterExcelImporter extends BaseExcelImporter {
+
+  public getFormalName: string = "Upload de Solicitante";
+
   protected async saveRegister(data: any[]): Promise<void> {
     for(const requester of data) {
       await this.requesterRepository.forceInsert(requester)

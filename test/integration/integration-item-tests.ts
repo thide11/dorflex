@@ -79,13 +79,13 @@ export default function integrationItemTests(knex : Knex, app : any, authToken :
       expect(response.statusCode).toEqual(StatusCodes.NOT_FOUND);
     })
 
-    test(`PUT /${baseEndpoint}/:id sem enviar data`, async () => {
-      const response = await supertest(app)
-        .put(`/${baseEndpoint}/fakeModel`)
-        .set("Authorization", `Bearer ${authToken}`)
+    // test(`PUT /${baseEndpoint}/:id sem enviar data`, async () => {
+    //   const response = await supertest(app)
+    //     .put(`/${baseEndpoint}/fakeModel`)
+    //     .set("Authorization", `Bearer ${authToken}`)
       
-      expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-    })
+    //   expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+    // })
 
     //TODO criar um novo item, ao inves de editar o já existente
     test(`PUT /${baseEndpoint}/:id com id válido`, async () => {

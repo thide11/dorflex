@@ -8,20 +8,23 @@ import ExcelReader from "../excel/excel-reader";
 
 export default class ItensYearExcelImporter extends BaseExcelImporter {
 
+  public getFormalName: string = "Upload de planilha anual";
+
   protected async saveRegister(data: any[]): Promise<void> {
     const areas = await this.areaRepository.list();
     const nameAreas = areas.map(a => a.name);
-    for(const item of data) {
-      if(nameAreas.includes(item.area_name)) {
-        delete item["max_value"]
-        delete item["unit_value"]
-        delete item["stock"]
-        item.blocked = false;
-        item.correction_factor = item.correction_factor * 100
-        await this.itemRepository.insert(item)
-      } else {
-        throw new AppError(AppErrorCode.UNKNOWN_AREA_NAME);
+    data.forEach(item => {
+      if(!nameAreas.includes(item.area_name)) {
+        throw new AppError(AppErrorCode.UNKNOWN_AREA_NAME, `Erro: Área com o nome ${item.area_name} desconhecida`);
       }
+    })
+    for(const item of data) {
+      delete item["max_value"]
+      delete item["unit_value"]
+      delete item["stock"]
+      item.blocked = false;
+      item.correction_factor = item.correction_factor * 100
+      await this.itemRepository.insert(item)
     };
   }
 

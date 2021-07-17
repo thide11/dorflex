@@ -26,8 +26,8 @@ describe("Testes de crud do usuario", () => {
     await knex.seed.run();
   });
 
-  integrationSolicitationTests(knex, app, authToken);
   integrationImportTests(knex, app, authToken);
+  integrationSolicitationTests(knex, app, authToken);
   integrationAreaTests(knex, app, authToken);
   integrationAuthTests(knex, app, authToken);
   integrationRequesterTests(knex, app, authToken);

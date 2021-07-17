@@ -53,5 +53,7 @@ export default abstract class BaseExcelImporter {
 
   protected abstract saveRegister(data : any[]) : Promise<void>;
 
+  public abstract getFormalName : string;
+
   protected abstract getExcelKeysToModelKeys : any;
 }

@@ -45,7 +45,6 @@
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.95.6",
     "pg": "^8.6.0",
-    "swagger-jsdoc": "^6.1.0",
     "swagger-ui-express": "^4.1.6",
     "validatorjs": "^3.22.1",
     "xlsx": "^0.17.0",

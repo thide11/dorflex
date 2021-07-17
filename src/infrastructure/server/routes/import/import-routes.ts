@@ -6,9 +6,11 @@ import { AppErrorCode } from '../../../../domain/error/app-error-code';
 import BaseExcelImporter from '../../../../domain/excel-importers/base-excel-importer';
 import CostCenterAndAreaExcelImporter from '../../../excel-importers/cost-center-and-area-excel-importer';
 import ItensYearExcelImporter from '../../../excel-importers/itens-year-excel-importer';
+import MontlyExcelImporter from '../../../excel-importers/montly-excel-importer';
 import RequesterExcelImporter from '../../../excel-importers/requester-excel-importer';
 import ExcelReader from '../../../excel/excel-reader';
 import AreaKnexRepository from '../../../repositories/knex/area-knex-repository';
+import AreaMontlyInfoKnexRepository from '../../../repositories/knex/area-montly-info-knex-repository';
 import CostCenterKnexRepository from '../../../repositories/knex/cost-center-knex-repository';
 import ExcelUploadsKnexRepository from '../../../repositories/knex/excel-uploads-knex-repository';
 import ItemKnexRepository from '../../../repositories/knex/item-knex-repository';
@@ -25,12 +27,15 @@ export function generateImportRoutes(knex : Knex) {
   const excelUploadsRepository = new ExcelUploadsKnexRepository(knex);
   const itemRepository = new ItemKnexRepository(knex);
   const costCenterRepository = new CostCenterKnexRepository(knex);
-
+  const areaMontlyInfoRepository = new AreaMontlyInfoKnexRepository(knex);
+  
   const typeToExcelImporter : { [key: string] : BaseExcelImporter } = {
     "requester-excel": new RequesterExcelImporter(requesterRepository, excelUploadsRepository, excelReader),
     "itens-year-excel": new ItensYearExcelImporter(areaRepository, itemRepository, excelUploadsRepository, excelReader),
     "cost-center-and-area-excel": new CostCenterAndAreaExcelImporter(areaRepository, costCenterRepository, excelUploadsRepository, excelReader),
+    "montly-excel": new MontlyExcelImporter(areaRepository, areaMontlyInfoRepository, excelUploadsRepository, excelReader),
   }
+
   router.post("/", async (req : any, res) => {
     await wrapRoutesErrorHandler(res, async () => {
       const user = getAuthDataOrThrow(res);
@@ -38,7 +43,6 @@ export function generateImportRoutes(knex : Knex) {
       if(!req.files?.file) {
         throw new AppError(AppErrorCode.INVALID_DATA, "Nenhum arquivo foi recebido");
       }
-
 
       const type = req.body.type;
 
@@ -54,6 +58,14 @@ export function generateImportRoutes(knex : Knex) {
       res.sendStatus(StatusCodes.CREATED)
     })
   });
+
+  router.get("/types", async (req : any, res) => {
+    const possibleTypesAndFormalNames : any = {}
+    Object.keys(typeToExcelImporter).map(e => {
+      possibleTypesAndFormalNames[e] = typeToExcelImporter[e].getFormalName
+    })
+    res.status(StatusCodes.OK).send(possibleTypesAndFormalNames)
+  })
 
   return router;
 }
