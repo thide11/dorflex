@@ -3,6 +3,7 @@ import AppError from "../../../domain/error/app-error";
 import { AppErrorCode } from "../../../domain/error/app-error-code";
 import BaseRepository from "../../../domain/repositories/base-repository";
 import Validator from 'validatorjs';
+import { database } from "faker";
 Validator.useLang("pt")
 
 export default abstract class BaseKnexRepository<T> implements BaseRepository<T> {
@@ -44,8 +45,16 @@ export default abstract class BaseKnexRepository<T> implements BaseRepository<T>
     return this.knex(this.getTableName());
   }
   
-  get(id : any): Promise<T> {
+  get(id : any): Promise<T | undefined> {
     return this.getKnexQuery().where(this.getPrimaryKeyName(), id).first();
+  }
+
+  async getOrThrowError(id : any): Promise<T> {
+    const model = await this.get(id);
+    if(model == undefined) {
+      throw new AppError(AppErrorCode.NOT_FOUND, `Não encontrado na tabela ${this.getTableName()} o id ${id}`);
+    }
+    return model;
   }
   
   list() : Promise<T[]> {

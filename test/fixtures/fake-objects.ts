@@ -9,9 +9,15 @@ import CostCenter from "../../src/domain/models/cost-center"
 import SolicitationItem from "../../src/domain/models/solicitation-item";
 
 export abstract class FakeObjects {
+
+  static addId(object : any, id : number = 1) {
+    const temp = {...object}
+    temp.id = id
+    return temp;
+  }
+
   static getTheFakeUser() {
     return { 
-      id: 0,
       email: "thide2001@gmail.com",
       name: "Thiago",
       passwordHash: "$2b$10$uwXb31Igl9Uofo.eqvceGefkQCEQtw8MkL4MeX7UPimgw51ru98WG",
@@ -46,7 +52,6 @@ export abstract class FakeObjects {
 
   static getTheFakeRequester() {
     return {
-      id: 10,
       name: "João Moura",
       area_name: this.getTheFakeArea().name,
     } as Requester
@@ -59,8 +64,12 @@ export abstract class FakeObjects {
       area_name: faker.datatype.string(),
     } as Requester
   }
+
   static getTheFakeItem() {
     return {
+      initial_stock: 100,
+      price: 300.40,
+      stock_code: "SAC325",
       sap_atena: "BR550235235",
       sap_br: "GGERMJGEUNGE",
       family: "Cosméticos",
@@ -71,8 +80,12 @@ export abstract class FakeObjects {
       blocked: false,
     } as Item
   }
+
   static generateFakeItem() {
     return {
+      initial_stock: faker.datatype.number(),
+      price: faker.datatype.float(),
+      stock_code: faker.datatype.string(10),
       sap_atena: faker.datatype.string(),
       sap_br: faker.datatype.string(),
       family: faker.datatype.string(),
@@ -88,7 +101,7 @@ export abstract class FakeObjects {
     //@ts-ignore
     return {
       amount: 2,
-      integer_limit_id: null,
+      item_limit_id: null,
     } as SolicitationItem
   }
 
@@ -106,8 +119,8 @@ export abstract class FakeObjects {
       created_date: new Date(2000, 10, 20),
       id: faker.datatype.number(),
       order_number: faker.datatype.string(15),
-      requester_id: this.getTheFakeRequester().id,
-      user_id: this.getTheFakeUser().id,
+      requester_id: 1,
+      user_id: 1,
       itens: [
         this.getTheFakeSolicitationItem(),
       ],
@@ -118,9 +131,8 @@ export abstract class FakeObjects {
       cost_center_code: this.getTheFakeCostCenter().code,
       created_date: new Date(2000, 10, 20),
       order_number: "242",
-      id: 1,
-      requester_id: this.getTheFakeRequester().id,
-      user_id: this.getTheFakeUser().id,
+      requester_id: 1,
+      user_id: 1,
       itens: [
         this.getTheFakeSolicitationItem(),
       ],

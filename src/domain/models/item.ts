@@ -1,4 +1,8 @@
 export default interface Item {
+  id : number,
+  initial_stock : number,
+  price : number,
+  stock_code : string,
   sap_atena : string,
   sap_br : string,
   description : string,

@@ -17,7 +17,7 @@ export default class ItemKnexRepository extends BaseKnexRepository<Item> impleme
   }
 
   protected getPrimaryKeyName() {
-    return "sap_atena";
+    return "id";
   }
 
   protected getTableName(): string {

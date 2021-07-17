@@ -10,6 +10,7 @@ import { FakeObjects } from "../fixtures/fake-objects";
 import ExcelUploadsKnexRepository from "../../src/infrastructure/repositories/knex/excel-uploads-knex-repository";
 import ItemKnexRepository from "../../src/infrastructure/repositories/knex/item-knex-repository";
 import { createErrorBody } from "../../src/infrastructure/server/utils/wrap-routes-error-handler"
+import Item from "../../src/domain/models/item";
 
 export default function integrationImportTests(knex : Knex, app : any, authToken : string) {
 
@@ -56,25 +57,26 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
       const excelUploadsRepository = new ExcelUploadsKnexRepository(knex);
       const excelUploads = await excelUploadsRepository.list();
       expect(excelUploads.length).toBe(1);
+
       const excelUpload = excelUploads[0];
       expect(excelUpload.filename).toBe(filename)
-      expect(excelUpload.user_uploaded).toBe(0)
+      expect(excelUpload.user_uploaded).toBe(1)
       expect(excelUpload.result).not.toBeNull();
 
 
       const requesters = await requesterRepository.list();
       expect(requesters.length).toBe(3);
       expect(requesters).toStrictEqual([
-        FakeObjects.getTheFakeRequester(),
+        FakeObjects.addId(FakeObjects.getTheFakeRequester()),
         {
           area_name: "Sólidos",
           name: "João Gonçanves",
-          id: 1
+          id: 2
         },
         {
           area_name: "Hormônios",
           name: "Gerson Rodrigues",
-          id: 2
+          id: 3
         },
       ])
       const areas = await areaRepository.list()
@@ -110,46 +112,59 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
         const filename = "upload-anual.xlsx"
 
         const response = await supertest(app)
-            .post('/import')
-            .field('type', 'itens-year-excel')
-            .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
-            .set("Authorization", `Bearer ${authToken}`)
+          .post('/import')
+          .field('type', 'itens-year-excel')
+          .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
+          .set("Authorization", `Bearer ${authToken}`)
 
-            expect(response.statusCode).toEqual(StatusCodes.OK);
-            const itemRepository = new ItemKnexRepository(knex);
-            expect(await itemRepository.list()).toStrictEqual([
-              FakeObjects.getTheFakeItem(),
-              {
-                "area_name": "Injetáveis",
-                "blocked": false,
-                "correction_factor": 0,
-                "description": "MANGUEIRA KANAFLEX KV \"2\"",
-                "family": null,
-                "net_value": 1.10965956e-7,
-                "sap_atena": "BR5500333",
-                "sap_br": null,
-              },
-              {
-                "area_name": "Injetáveis",
-                "blocked": false,
-                "correction_factor": 0,
-                "description": "ENVELOPE DOSSIÊ DO LOTE",
-                "family": null,
-                "net_value": 0.000022854494,
-                "sap_atena": "BR5500213",
-                "sap_br": null,
-              },
-              {
-                "area_name": "Injetáveis",
-                "blocked": false,
-                "correction_factor": -13,
-                "description": "LUVA CIRURG DESC LTX M",
-                "family": null,
-                "net_value": 0.000016897193,
-                "sap_atena": "BR5500081",
-                "sap_br": null,
-              },
-            ])
+          expect(response.statusCode).toEqual(StatusCodes.OK);
+          const itemRepository = new ItemKnexRepository(knex);
+          const expected : Item[] = [
+            FakeObjects.addId(FakeObjects.getTheFakeItem()),
+            {
+              id: 2,
+              area_name: "Injetáveis",
+              blocked: false,
+              correction_factor: 0,
+              description: "MANGUEIRA KANAFLEX KV \"2\"",
+              family: null,
+              net_value: 1.10965956e-7,
+              sap_atena: "BR5500333",
+              sap_br: null,
+              initial_stock: null,
+              price: null,
+              stock_code: null,
+            },
+            {
+              id: 3,
+              area_name: "Injetáveis",
+              blocked: false,
+              correction_factor: 0,
+              description: "ENVELOPE DOSSIÊ DO LOTE",
+              family: null,
+              net_value: 0.000022854494,
+              sap_atena: "BR5500213",
+              sap_br: null,
+              initial_stock: null,
+              price: null,
+              stock_code: null,
+            },
+            {
+              id: 4,
+              area_name: "Injetáveis",
+              blocked: false,
+              correction_factor: -13,
+              description: "LUVA CIRURG DESC LTX M",
+              family: null,
+              net_value: 0.000016897193,
+              sap_atena: "BR5500081",
+              sap_br: null,
+              initial_stock: null,
+              price: null,
+              stock_code: null,
+            },
+          ];
+          expect(await itemRepository.list()).toStrictEqual(expected)
       });
     })
 

@@ -17,6 +17,10 @@ export default abstract class BaseExcelImporter {
   }
 
   async readExcel(userUploaded : JWTUserData, file : any) {
+    if(!this.isAnExcelMimetype(file.mimetype)) {  
+      throw new AppError(AppErrorCode.EXPECTED_EXCEL_FILE);
+    }
+    
     const excelUpload = {
       date: new Date(),
       filename: file.name,
@@ -24,9 +28,6 @@ export default abstract class BaseExcelImporter {
       user_uploaded: userUploaded.id,
     } as ExcelUpload
     try {
-      if(!this.isAnExcelMimetype(file.mimetype)) {  
-        throw new AppError(AppErrorCode.EXPECTED_EXCEL_FILE);
-      }
       const buffer = file.data;
       const excel = this.reader.readExcel(buffer);
       const modelList = excel.map((excelRow : any) => {

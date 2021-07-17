@@ -5,7 +5,7 @@ export default function testUser() {
     email: "fake@email.com.br",
     name: "Thiago",
     role: "administrator",
-    id: 0,
+    id: 1,
     iat: 234235,
   } as JWTUserData;
 }

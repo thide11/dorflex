@@ -17,8 +17,8 @@ export function generateItemRoutes(itemRepository : ItemRepository) {
       family: clientData.family,
       net_value: clientData.net_value,
       sap_atena: clientData.sap_atena,
-      sap_br: clientData.sap_br
-    }
+      sap_br: clientData.sap_br,
+    } as Item
   }
 
   router.post("/", async (req, res) => { 
@@ -27,9 +27,8 @@ export function generateItemRoutes(itemRepository : ItemRepository) {
       requirePayloadOnBody(req);
       requireLoggedUserToBeAdministradorOrThrow(user);
       const clientData = req.body;
-      const data = await itemRepository.insert(
-        getItemOnBody(clientData)
-      );
+      const data = await itemRepository.insert(clientData);
+      // getItemOnBody(clientData)
       res.status(StatusCodes.CREATED).send(data);
     });
   })

@@ -23,6 +23,7 @@ export default {
     seeds: {
       directory: __dirname + '/test/repositories/knex/seeds'
     },
+    // debug: true,
   },
   development: getDefaultConfig("src"),
   production: getDefaultConfig("dist/src"),

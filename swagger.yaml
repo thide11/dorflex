@@ -168,12 +168,16 @@ paths:
           description: Usuario autenticado com sucesso
           content:
             application/json:
-              schema:
-              type: object
-              properties:
-                token:
-                  type: string
-                  example: string
+                schema:
+                  items:
+                    $ref: '#/components/schemas/Color'
+            # application/json:
+            #   schema:
+            #     type: object
+            #     properties:
+            #       token:
+            #         type: string
+            #         example: eyJhbGciOilIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6bnVsbCaiZW1haWwiOiJ0ZXN0ZUBnbWFpbC5jb20iLCJyb0xlIjoiYWRtaW5pc3RyYXRvciIsImV4cGlyYXRpb25Ub2tlbiI6MTYyNTk4NTI0NzM0MiwiaWF0IjoxNjI1OTg1MjQzfQ.OxCW-3p-_WcuP-zwmeRjZslBsMUqmvSJUa9zss9bemk
         401:
           description: Credenciais não correspondem a nenhum usuário
       requestBody:
@@ -188,9 +192,81 @@ paths:
                 password:
                   type: string
                   example: senha
+  /user:
+    get:
+      tags:
+      - Usuário
+      summary: Listar os usuários (Apenas para fins de debug)
+      responses:
+        200:
+          description: Listagem feita com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                    example: 1
+                  email:
+                    type: string
+                    example: teste@gmail.com
+                  name:
+                    type: string
+                    example: Joel
+                  passwordHash:
+                    type: string
+                    example: 2b$09$PEmiDgMQ/E1pMFmTR2m.JueQGapN2qjC6Xudgio6Z7PKR2yO9M1gW"
+                  role:
+                    type: string
+                    enum: ["administrator", "warehouse", "common"]
+                  password:
+                    type: string
+                    example: senha
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+      - Usuário
+      summary: Cadastrar um usuário
+      responses:
+        201:
+          description: Usuario cadastrado com sucesso
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: teste@gmail.com
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: ["administrator", "warehouse", "common"]
+  
 components:
   schemas:
-    
+    Color:
+      type: string
+      enum:
+        - black
+        - white
+        - red
+        - green
+        - blue
     Area:
       required:
       - name
@@ -208,7 +284,7 @@ components:
           example: false
   responses:
     BadRequest:
-      description: Algum valor enviado no body que não foi esperado
+      description: Algum valor enviado no body que inesperado
       content:
         application/json:
           schema:

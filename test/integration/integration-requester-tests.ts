@@ -35,7 +35,7 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
               
           expect(response.statusCode).toEqual(StatusCodes.OK);
           expect(response.body).toEqual([
-            exampleModel
+            FakeObjects.addId(exampleModel)
           ]);
       })
     })
@@ -50,11 +50,11 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
 
       test(`GET /${baseEndpoint}/:id expecting data`, async () => {
         const response = await supertest(app)
-          .get(`/${baseEndpoint}/${exampleModel.id}`)
+          .get(`/${baseEndpoint}/1`)
           .set("Authorization", `Bearer ${authToken}`);
     
         expect(response.statusCode).toEqual(StatusCodes.OK);
-        expect(response.body).toEqual(exampleModel);
+        expect(response.body).toEqual(FakeObjects.addId(exampleModel));
       })
     })
 
@@ -82,7 +82,7 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
         
         expect(response.statusCode).toEqual(StatusCodes.CREATED);
         expect(response.body.name).toEqual(exampleGeneratedModel.name);
-        expect(response.body.id).toEqual(1);
+        expect(response.body.id).toEqual(2);
         const list = await requesterRepository.list();
         expect(list.length).toBe(2);
         expect(list[1].name).toStrictEqual(exampleGeneratedModel.name);
@@ -92,7 +92,7 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
     describe("Funcao de editar um", () => {
       test(`PUT /${baseEndpoint}/:id com id inexistente`, async () => {
         const modelToEdit : Requester = {...exampleModel};
-        modelToEdit.id = 56;
+        modelToEdit.id = 20;
 
         const response = await supertest(app)
           .put(`/${baseEndpoint}/${modelToEdit.id}`)
@@ -106,7 +106,7 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
         const modelToEdit : Requester = {...exampleModel};
 
         const response = await supertest(app)
-          .put(`/${baseEndpoint}/${modelToEdit.id}`)
+          .put(`/${baseEndpoint}/1`)
           .set("Authorization", `Bearer ${authToken}`)
         
         expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
@@ -118,34 +118,35 @@ export default function integrationRequesterTests(knex : Knex, app : any, authTo
         modelToEdit.name = "newName"
 
         const response = await supertest(app)
-          .put(`/${baseEndpoint}/${modelToEdit.id}`)
+          .put(`/${baseEndpoint}/1`)
           .set("Authorization", `Bearer ${authToken}`)
           .send(modelToEdit);
         
         expect(response.statusCode).toEqual(StatusCodes.OK);
-        const model = await requesterRepository.get(modelToEdit.id);
-        expect(model).toStrictEqual(modelToEdit);
+        const model = await requesterRepository.get(1);
+        expect(model).toStrictEqual(FakeObjects.addId(modelToEdit));
       })
     });
 
     describe("Funcao de deletar um", () => {
       test(`DELETE /${baseEndpoint}/:id com id inexistente`, async () => {
         const response = await supertest(app)
-          .delete(`/${baseEndpoint}/${exampleModel.id+1}`)
+          .delete(`/${baseEndpoint}/20`)
           .set("Authorization", `Bearer ${authToken}`)
         
         expect(response.statusCode).toEqual(StatusCodes.NOT_FOUND);
       })
 
       test(`DELETE /${baseEndpoint}/:id com id válido`, async () => {
-        await solicitationRepository.delete(FakeObjects.getTheFakeSolicitation().id);
+        //TODO REATIVAR O DELETE DO SOLICITAITON QUANDO ELE VOLTAR
+        // await solicitationRepository.delete(1);
 
         const response = await supertest(app)
-          .delete(`/${baseEndpoint}/${exampleModel.id}`)
+          .delete(`/${baseEndpoint}/1`)
           .set("Authorization", `Bearer ${authToken}`)
         
         expect(response.statusCode).toEqual(StatusCodes.OK);
-        const model = await requesterRepository.get(exampleModel.id);
+        const model = await requesterRepository.get(1);
         expect(model).toBeUndefined();
       })
     });

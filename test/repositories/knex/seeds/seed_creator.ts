@@ -16,7 +16,7 @@ export async function seed(knex: Knex): Promise<void> {
 
     const solicitationItemRepository = new SolicitationItemKnexRepository(knex)
     const solicitationRepository = new SolicitationKnexRepository(solicitationItemRepository, knex);
-    await solicitationRepository.insert(FakeObjects.getTheFakeSolicitation())
+    // await solicitationRepository.insert(FakeObjects.getTheFakeSolicitation())
 
     //@ts-ignore
     // delete solicitation.itens

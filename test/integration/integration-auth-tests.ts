@@ -2,6 +2,7 @@ import { Knex } from "knex";
 import supertest from "supertest";
 import { FakeObjects } from "../fixtures/fake-objects";
 import faker from "faker";
+import UncryptedUser from "../../src/domain/models/uncrypted-user";
 import { StatusCodes } from "http-status-codes";
 import UserKnexRepository from "../../src/infrastructure/repositories/knex/user-knex-repository";
 
@@ -20,8 +21,8 @@ export default function integrationAuthTests(knex : Knex, app : any, authToken :
       expect(token).not.toBeNull();
     })
   })
-  describe("Função de cadastro de usuario", () => {
 
+  describe("Função de cadastro de usuario", () => {
     test('POST /user without autentication', async () => {
       const password = faker.internet.password();
       const loginData = await FakeObjects.generateFakeUser(password);
@@ -30,17 +31,20 @@ export default function integrationAuthTests(knex : Knex, app : any, authToken :
   
       expect(response.statusCode).toEqual(StatusCodes.UNAUTHORIZED);
     })
+
     test('POST /user with autentication', async () => {
       const password = faker.internet.password();
       // const loginData = await FakeObjects.generateFakeUser(password);
       const response = await supertest(app)
-          .post('/user')
-          .set("Authorization", `Bearer ${authToken}`)
-          .send({
-            username: "teste",
-            email: "massa@gmail.com",
-            password: "123",
-          });
+        .post('/user')
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          name: "teste",
+          email: "massa@gmail.com",
+          password: password,
+          role: "administrator",
+        } as UncryptedUser
+      );
   
       expect(response.statusCode).toEqual(StatusCodes.CREATED);
       const usuarioRepository = new UserKnexRepository(knex);
