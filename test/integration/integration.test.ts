@@ -20,7 +20,7 @@ describe("Testes de crud do usuario", () => {
   beforeAll(async () => {
     await knex.migrate.rollback()
   })
-
+  
   beforeEach(async () => {
     await knex.migrate.latest()
     await knex.seed.run();

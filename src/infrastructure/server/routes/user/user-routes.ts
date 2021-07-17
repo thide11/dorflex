@@ -14,8 +14,13 @@ export function generateUserRoutes(userRepository : UserRepository, auth : Auth)
   var router = express.Router();
 
   router.get("/", async (_, res) => {
-    const usuarios = await userRepository.list()
-    res.status(200).send(usuarios)
+    await wrapRoutesErrorHandler(res, async () => {
+      const user = getAuthDataOrThrow(res);
+      requireLoggedUserToBeAdministradorOrThrow(user);
+      const usuarios = await userRepository.list()
+
+      res.status(200).send(usuarios)
+    });
   })
 
   router.post("/", async(req, res) => {

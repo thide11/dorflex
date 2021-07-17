@@ -33,7 +33,6 @@ export default abstract class BaseKnexRepository<T> implements BaseRepository<T>
   }
 
   async update(id : any, data: T): Promise<T> {
-    this.validateData(data);
     const affectedRows = await this.getKnexQuery().where(this.getPrimaryKeyName(), id).update(data);
     if(affectedRows == 0) {
       throw new AppError(AppErrorCode.NOT_FOUND);

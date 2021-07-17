@@ -11,12 +11,14 @@ servers:
 tags:
 - name: Usuário
   description: Usuarios para acesso ao sistema
-- name: Centro de Custos
-  description: Centro de custos sob controle de um gestor
-- name: Área
-  description: Categoria do produto
 - name: Autenticacao
   description: Autenticar um usuário
+- name: Área
+  description: Categoria do produto
+- name: Centro de Custos
+  description: Centro de custos sob controle de um gestor
+- name: Solicitantes
+  description: Nome de solicitantes
 - name: Importacao
   description: Importe planilhas excel no sistema
 paths:
@@ -24,7 +26,7 @@ paths:
     get:
       tags:
       - Área
-      summary: Delete uma área
+      summary: Exibe uma área
       parameters:
         - name: id
           in: path
@@ -34,17 +36,19 @@ paths:
           required: true
       responses:
         200:
-          description: Item deletado
+          description: Área encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Area'
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
           $ref: '#/components/responses/Forbidden'
         404:
           $ref: '#/components/responses/NotFound'
-        500:
-          description: O nome da área provavelmente já está atribuido em outra tabela 
       security:
-      - usuario_administrador:
+      - usuario_autenticado:
         - write
         - read
     put:
@@ -81,7 +85,7 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
       security:
-      - usuario_administrador:
+      - usuario_autenticado:
         - write
     delete:
       tags:
@@ -106,7 +110,7 @@ paths:
         500:
           description: O nome da área provavelmente já está atribuido em outra tabela 
       security:
-      - usuario_administrador:
+      - usuario_autenticado:
         - write
         - read
   /area:
@@ -128,7 +132,7 @@ paths:
         403:
           $ref: '#/components/responses/Forbidden'
       security:
-      - usuario_administrador:
+      - usuario_autenticado:
         - write
         - read
     post:
@@ -155,7 +159,7 @@ paths:
         403:
           $ref: '#/components/responses/Forbidden'
       security:
-      - usuario_administrador:
+      - usuario_autenticado:
         - write
         - read
   /auth/login:
@@ -169,15 +173,11 @@ paths:
           content:
             application/json:
                 schema:
-                  items:
-                    $ref: '#/components/schemas/Color'
-            # application/json:
-            #   schema:
-            #     type: object
-            #     properties:
-            #       token:
-            #         type: string
-            #         example: eyJhbGciOilIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6bnVsbCaiZW1haWwiOiJ0ZXN0ZUBnbWFpbC5jb20iLCJyb0xlIjoiYWRtaW5pc3RyYXRvciIsImV4cGlyYXRpb25Ub2tlbiI6MTYyNTk4NTI0NzM0MiwiaWF0IjoxNjI1OTg1MjQzfQ.OxCW-3p-_WcuP-zwmeRjZslBsMUqmvSJUa9zss9bemk
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      example: eyJhbGciOilIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6bnVsbCaiZW1haWwiOiJ0ZXN0ZUBnbWFpbC5jb20iLCJyb0xlIjoiYWRtaW5pc3RyYXRvciIsImV4cGlyYXRpb25Ub2tlbiI6MTYyNTk4NTI0NzM0MiwiaWF0IjoxNjI1OTg1MjQzfQ.OxCW-3p-_WcuP-zwmeRjZslBsMUqmvSJUa9zss9bemk
         401:
           description: Credenciais não correspondem a nenhum usuário
       requestBody:
@@ -203,32 +203,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: number
-                    example: 1
-                  email:
-                    type: string
-                    example: teste@gmail.com
-                  name:
-                    type: string
-                    example: Joel
-                  passwordHash:
-                    type: string
-                    example: 2b$09$PEmiDgMQ/E1pMFmTR2m.JueQGapN2qjC6Xudgio6Z7PKR2yO9M1gW"
-                  role:
-                    type: string
-                    enum: ["administrator", "warehouse", "common"]
-                  password:
-                    type: string
-                    example: senha
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
         400:
           $ref: '#/components/responses/BadRequest'
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
           $ref: '#/components/responses/Forbidden'
+      security:
+      - usuario_autenticado:
+        - write
+        - read
     post:
       tags:
       - Usuário
@@ -246,27 +233,315 @@ paths:
         content:
           application/json:
             schema:
+              $ref: '#/components/schemas/UncryptedUser'
+      security:
+      - usuario_autenticado:
+        - write
+        - read
+
+  /costCenter/{code}:
+    get:
+      tags:
+      - Centro de Custos
+      summary: Exibe um centro de custo
+      parameters:
+        - name: code
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      responses:
+        200:
+          description: Centro de custo exibido com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostCenter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - usuario_autenticado:
+        - write
+        - read
+    put:
+      tags:
+      - Centro de Custos
+      summary: Edite um centro de custo
+      description: O código de um centro de custos não pode ser alterado, portanto não o envie na requisição
+      parameters:
+        - name: code
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditableCostCenter'
+        required: true
+        description: Edite um centro de custo existente, envie pelo menos um dos atributos existentes
+      responses:
+        200:
+          description: Edição feita com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Area'
+        400:
+          description: Provavelmente nome da área já existe
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - usuario_autenticado:
+        - write
+    delete:
+      tags:
+      - Centro de Custos
+      summary: Deleta um centro de custo
+      parameters:
+        - name: code
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      responses:
+        200:
+          description: Item deletado
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          description: O centro de custos provavelmente já está atribuido em outra tabela e não pode ser deletado
+      security:
+      - usuario_autenticado:
+        - write
+        - read
+  /costCenter:
+    get: 
+      tags:
+      - Centro de Custos
+      summary: Lista todos os centro de custos
+      responses:
+        200:
+          description: Listagem feita com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostCenter'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+      security:
+      - usuario_autenticado:
+        - write
+        - read
+    post:
+      tags:
+      - Centro de Custos
+      summary: Cadastra um centro de custo
+      requestBody:
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostCenter'
+      responses:
+        201:
+          description: Cadastro feito com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostCenter'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+      security:
+      - usuario_autenticado:
+        - write
+        - read
+
+  /requester/{id}:
+    get:
+      tags:
+      - Solicitantes
+      summary: Exibe um solicitante
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      responses:
+        200:
+          description: Solicitante exibido com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Requester'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - usuario_autenticado:
+        - write
+        - read
+    put:
+      tags:
+      - Solicitantes
+      summary: Edita um solicitante
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Requester'
+        required: true
+        description: Edite um centro de custo existente, envie pelo menos um dos atributos existentes
+      responses:
+          200:
+            description: Solicitante editado com sucesso
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Requester'
+          401:
+            $ref: '#/components/responses/Unauthorized'
+          403:
+            $ref: '#/components/responses/Forbidden'
+          404:
+            $ref: '#/components/responses/NotFound'
+      security:
+      - usuario_autenticado:
+        - write
+        - read
+    delete:
+      tags:
+      - Solicitantes
+      summary: Deleta um solicitante
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      responses:
+          200:
+            description: Solicitante deletado com sucesso
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Requester'
+          401:
+            $ref: '#/components/responses/Unauthorized'
+          403:
+            $ref: '#/components/responses/Forbidden'
+          404:
+            $ref: '#/components/responses/NotFound'
+      security:
+      - usuario_autenticado:
+        - write
+        - read
+            
+            
+  /import:
+    post:
+      tags:
+      - Importacao
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required: 
+              - type
+              - file
               type: object
               properties:
-                email:
+                type:
                   type: string
-                  example: teste@gmail.com
-                password:
+                file:
                   type: string
-                role:
-                  type: string
-                  enum: ["administrator", "warehouse", "common"]
-  
+                  format: binary
+      responses:
+        200:
+          description: Planilha importada com sucesso
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+            $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/Forbidden'
+      security:
+      - usuario_autenticado:
+        - write
+        - read
 components:
   schemas:
-    Color:
+    Role:
       type: string
-      enum:
-        - black
-        - white
-        - red
-        - green
-        - blue
+      enum: ["administrator", "warehouse", "common"]
+    
+    UncryptedUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: teste@gmail.com
+        name:
+          type: string
+          example: Joel
+        role:
+          $ref: '#/components/schemas/Role'
+        password:
+          type: string
+          example: senha
+    User:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        email:
+          type: string
+          example: teste@gmail.com
+        name:
+          type: string
+          example: Joel
+        passwordHash:
+          type: string
+          example: 2b$09$PEmiDgMQ/E1pMFmTR2m.JueQGapN2qjC6Xudgio6Z7PKR2yO9M1gW"
+        role:
+          $ref: '#/components/schemas/Role'
     Area:
       required:
       - name
@@ -282,9 +557,41 @@ components:
         solicitation_is_blocked:
           type: boolean
           example: false
+    CostCenter:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int64
+        description:
+          type: string
+          example: Este é um centro de custos muito massa!
+        area:
+          type: string
+          example: Area
+    EditableCostCenter:
+      properties:
+        description:
+          type: string
+          example: Este é um centro de custos muito massa!
+        area:
+          type: string
+          example: Area
+    Requester:
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Joaquin souza
+        area_name:
+          type: string
+          example: Area
+          
   responses:
     BadRequest:
-      description: Algum valor enviado no body que inesperado
+      description: Algum valor enviado no body que foi inesperado
       content:
         application/json:
           schema:
@@ -300,12 +607,6 @@ components:
     Forbidden:
       description: Você não tem permissão suficiente para acessar este recurso
   securitySchemes:
-    usuario_administrador:
-      type: http
-      scheme: bearer
-    usuario_almoxarifado:
-      type: http
-      scheme: bearer
-    usuario_comum:
+    usuario_autenticado:
       type: http
       scheme: bearer

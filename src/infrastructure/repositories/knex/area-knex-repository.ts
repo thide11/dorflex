@@ -11,9 +11,9 @@ export default class AreaKnexRepository extends BaseKnexRepository<Area> impleme
 
   protected getValidatorRules() : Validator.Rules {
     return {
-      code: 'integer|required',
+      code: 'integer',
       name: 'string|required',
-      solicitation_is_blocked: "boolean|required"
+      solicitation_is_blocked: "boolean"
     }
   };
 

@@ -110,6 +110,7 @@ export abstract class FakeObjects {
       area: this.getTheFakeArea().name,
       code: 34502,
       description: "Area da bagunca",
+      manager: "Ricardo",
     } as CostCenter
   }
 

@@ -11,7 +11,7 @@ export async function up(knex: Knex): Promise<void> {
   })
 
   await knex.schema.createTable("area", (table) => {
-    table.integer("code").notNullable()
+    table.increments("code", { primaryKey: false })
     table.string("name").primary()
     table.boolean("solicitation_is_blocked").defaultTo(false);
   })
@@ -20,6 +20,7 @@ export async function up(knex: Knex): Promise<void> {
     table.integer("code").primary()
     table.string("description").nullable()
     table.string("area").notNullable()
+    table.string("manager")
     table.foreign("area").references("name").inTable("area");
   })
 
