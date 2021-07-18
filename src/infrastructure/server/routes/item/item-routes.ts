@@ -50,7 +50,7 @@ export function generateItemRoutes(itemRepository : ItemRepository) {
 
       const data = await itemRepository.get(req.params.id);
       if(!data) {
-        res.sendStatus(StatusCodes.NOT_FOUND);
+        res.status(StatusCodes.NOT_FOUND).send();
       }
       res.send(data);
     });
@@ -63,7 +63,7 @@ export function generateItemRoutes(itemRepository : ItemRepository) {
 
       const item = await itemRepository.update(req.params.id, getItemOnBody(req.body))
       if(!item) {
-        res.sendStatus(StatusCodes.NOT_FOUND);
+        res.status(StatusCodes.NOT_FOUND).send();
       }
       res.send(item);
     });
@@ -75,7 +75,7 @@ export function generateItemRoutes(itemRepository : ItemRepository) {
       requireLoggedUserToBeAdministradorOrThrow(user);
 
       await itemRepository.delete(req.params.id);
-      res.sendStatus(StatusCodes.OK);
+      res.status(StatusCodes.OK).send();
     });
   })
 

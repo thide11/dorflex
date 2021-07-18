@@ -41,7 +41,7 @@ export function generateCostCenterRoutes(costCenterRepository : CostCenterReposi
 
       const data = await costCenterRepository.get(req.params.id);
       if(!data) {
-        res.sendStatus(StatusCodes.NOT_FOUND);
+        res.status(StatusCodes.NOT_FOUND).send();
       }
       res.send(data);
     });
@@ -72,7 +72,7 @@ export function generateCostCenterRoutes(costCenterRepository : CostCenterReposi
         manager: costCenterData.manager
       });
       if(!updatedCostCenterData) {
-        res.sendStatus(StatusCodes.NOT_FOUND);
+        res.status(StatusCodes.NOT_FOUND).send();
       }
       res.status(StatusCodes.OK).send(updatedCostCenterData);
     });
@@ -84,7 +84,7 @@ export function generateCostCenterRoutes(costCenterRepository : CostCenterReposi
       requireLoggedUserToBeAdministradorOrThrow(user);
 
       await costCenterRepository.delete(req.params.id);
-      res.sendStatus(StatusCodes.OK);
+      res.status(StatusCodes.OK).send();
     });
   })
 

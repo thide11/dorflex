@@ -36,7 +36,7 @@ export function generateUserRoutes(userRepository : UserRepository, auth : Auth)
         role: data.role
       } as UncryptedUser
       )
-      res.sendStatus(StatusCodes.CREATED);
+      res.status(StatusCodes.CREATED).send();
     });
   })
 

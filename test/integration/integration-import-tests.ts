@@ -113,7 +113,7 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
   
         await checkIfUploadIsOnExcelUploads(filename);
       })
-      test("Deve ler a planilha mensal com as áreas criadas anteriormente", async () => {
+      test("Deve ler a planilha mensal com as áreas criadas anteriormente, mas sem as expectativas de produção", async () => {
 
         const areaRepository = new AreaKnexRepository(knex);
 
@@ -129,7 +129,31 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
             .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
             .set("Authorization", `Bearer ${authToken}`)
   
-        expect(response.statusCode).toEqual(StatusCodes.CREATED);
+        expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        expect(response.body).toEqual(createErrorBody("Erro ao tentar atualizar dados do relatório Calçados"));
+  
+        await checkIfUploadIsOnExcelUploads(filename);
+      })
+
+
+      test("Deve ler a planilha mensal com as áreas criadas anteriormente, com carga de volume de produção", async () => {
+
+        const areaRepository = new AreaKnexRepository(knex);
+
+        await areaRepository.insert({
+          name: "Calçados",
+          solicitation_is_blocked: false,
+        })
+
+        const filename = "upload-mensal.xlsx"
+        const response = await supertest(app)
+            .post('/import')
+            .field('type', 'montly-excel')
+            .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
+            .set("Authorization", `Bearer ${authToken}`)
+  
+        expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+        expect(response.body).toEqual(StatusCodes.BAD_REQUEST);
   
         await checkIfUploadIsOnExcelUploads(filename);
       })

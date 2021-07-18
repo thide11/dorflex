@@ -40,7 +40,7 @@ export function generateRequesterRoutes(requesterRepository : RequesterRepositor
 
       const data = await requesterRepository.get(req.params.id);
       if(!data) {
-        res.sendStatus(StatusCodes.NOT_FOUND);
+        res.status(StatusCodes.NOT_FOUND).send();
       }
       res.send(data);
     });
@@ -68,7 +68,7 @@ export function generateRequesterRoutes(requesterRepository : RequesterRepositor
       requireLoggedUserToBeAdministradorOrThrow(user);
 
       await requesterRepository.delete(req.params.id);
-      res.sendStatus(StatusCodes.OK);
+      res.status(StatusCodes.OK).send();
     });
   })
   

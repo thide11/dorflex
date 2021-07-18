@@ -5,43 +5,43 @@ import { getAuthDataOrThrow, requireLoggedUserToBeAdministradorOrThrow, requireP
 import { wrapRoutesErrorHandler } from "../../utils/wrap-routes-error-handler";
 
 export function generateSolicitationRoutes(solicitationRepository : SolicitationRepository) {
-    const router = express.Router();
+  const router = express.Router();
 
-    router.post("/", async (req, res) => { 
-      await wrapRoutesErrorHandler(res, async () => {
-        const user = getAuthDataOrThrow(res);
-        requirePayloadOnBody(req);
-        requireLoggedUserToBeAdministradorOrThrow(user);
-        const clientData = req.body;
-        const data = await solicitationRepository.insert({
-          ...clientData,
-          user_id: user.id
-        });
-        res.status(StatusCodes.CREATED).send(data);
+  router.post("/", async (req, res) => { 
+    await wrapRoutesErrorHandler(res, async () => {
+      const user = getAuthDataOrThrow(res);
+      requirePayloadOnBody(req);
+      requireLoggedUserToBeAdministradorOrThrow(user);
+      const clientData = req.body;
+      const data = await solicitationRepository.insert({
+        ...clientData,
+        user_id: user.id
       });
-    })
-    
-    router.get("/", async(req, res) => {
-      await wrapRoutesErrorHandler(res, async () => {
-        const user = getAuthDataOrThrow(res);
-        requireLoggedUserToBeAdministradorOrThrow(user);
+      res.status(StatusCodes.CREATED).send(data);
+    });
+  })
   
-        const data = await solicitationRepository.list();
-        res.send(data);
-      });
-    })
-  
-    router.get("/:id", async(req, res) => {
-      await wrapRoutesErrorHandler(res, async () => {
-        const user = getAuthDataOrThrow(res);
-        requireLoggedUserToBeAdministradorOrThrow(user);
-  
-        const data = await solicitationRepository.get(req.params.id);
-        if(!data) {
-          res.sendStatus(StatusCodes.NOT_FOUND);
-        }
-        res.send(data);
-      });
-    })
-    return router;
+  router.get("/", async(req, res) => {
+    await wrapRoutesErrorHandler(res, async () => {
+      const user = getAuthDataOrThrow(res);
+      requireLoggedUserToBeAdministradorOrThrow(user);
+
+      const data = await solicitationRepository.list();
+      res.send(data);
+    });
+  })
+
+  router.get("/:id", async(req, res) => {
+    await wrapRoutesErrorHandler(res, async () => {
+      const user = getAuthDataOrThrow(res);
+      requireLoggedUserToBeAdministradorOrThrow(user);
+
+      const data = await solicitationRepository.get(req.params.id);
+      if(!data) {
+        res.status(StatusCodes.NOT_FOUND).send();
+      }
+      res.send(data);
+    });
+  })
+  return router;
 }

@@ -38,7 +38,7 @@ export function generateAreaRoutes(areaRepository : AreaRepository) {
 
       const data = await areaRepository.get(req.params.id);
       if(!data) {
-        res.sendStatus(StatusCodes.NOT_FOUND);
+        res.status(StatusCodes.NOT_FOUND).send();
       }
       res.send(data);
     });
@@ -56,7 +56,7 @@ export function generateAreaRoutes(areaRepository : AreaRepository) {
         solicitation_is_blocked: data.solicitation_is_blocked,
       });
       if(!data) {
-        res.sendStatus(StatusCodes.NOT_FOUND);
+        res.status(StatusCodes.NOT_FOUND).send();
       }
       res.send(data);
     });
@@ -68,7 +68,7 @@ export function generateAreaRoutes(areaRepository : AreaRepository) {
       requireLoggedUserToBeAdministradorOrThrow(user);
 
       await areaRepository.delete(req.params.id);
-      res.sendStatus(StatusCodes.OK);
+      res.status(StatusCodes.OK).send();
     });
   })
   

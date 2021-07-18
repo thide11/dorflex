@@ -55,7 +55,7 @@ export function generateImportRoutes(knex : Knex) {
 
       const file = req.files.file;
       await selectedExcelImporter.readExcel(user, file);
-      res.sendStatus(StatusCodes.CREATED)
+      res.status(StatusCodes.CREATED).send();
     })
   });
 

@@ -12,7 +12,7 @@ export function generateAuthRoutes(userRepository : UserRepository, auth : Auth)
     if(res.locals.context != null) {
       res.send(res.locals.context);
     } else {
-      res.sendStatus(StatusCodes.UNAUTHORIZED)
+      res.status(StatusCodes.UNAUTHORIZED).send();
     }
   })
 
@@ -24,7 +24,7 @@ export function generateAuthRoutes(userRepository : UserRepository, auth : Auth)
         token: usuario
       });
     } else { 
-      res.sendStatus(401);
+      res.status(StatusCodes.UNAUTHORIZED).send();
     }
   })
 

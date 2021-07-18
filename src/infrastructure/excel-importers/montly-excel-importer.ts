@@ -46,13 +46,12 @@ export default class MontlyExcelImporter extends BaseExcelImporter {
       const date = new Date(year, month);
       item_month_updates.push({
         month: date,
+        area_name: item.area_name,
         real_production: item.real_production,
       } as AreaMontlyInfo)
     };
 
-    
-
-    console.log(item_month_updates);
+    await this.areaMontlyInfoRepository.runUpdateTransaction(item_month_updates)
   }
 
   constructor(private areaRepository : AreaRepository, private areaMontlyInfoRepository : AreaMontlyInfoKnexRepository, excelUploadsRepository : ExcelUploadsRepository, reader : ExcelReader) {

@@ -68,7 +68,7 @@ export async function up(knex: Knex): Promise<void> {
     table.increments("id").primary()
     table.integer("item_limit")
     table.integer("previous_saving").nullable()
-    table.date("area_montly_info_month").notNullable();
+    table.date("area_monthly_info_month").notNullable();
     table.integer("item_id").notNullable()
     table.integer("current_stock").notNullable()
     table.foreign("item_id").references("id").inTable("itens")
