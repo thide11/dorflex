@@ -11,6 +11,9 @@ export default abstract class BaseKnexRepository<T> implements BaseRepository<T>
   protected abstract getPrimaryKeyName() : string;
   protected abstract getValidatorRules() : Validator.Rules;
   protected knex : Knex;
+
+  protected transaction? : Knex.Transaction;
+
   constructor(knex : Knex) {
     this.knex = knex;
   }
@@ -40,8 +43,20 @@ export default abstract class BaseKnexRepository<T> implements BaseRepository<T>
     return data;
   }
 
+  public createTransaction() {
+    return this.knex.transaction();
+  }
+  
+  public setTransaction(knexTransaction : Knex.Transaction) {
+    this.transaction = knexTransaction;
+  }
+
+  public removeTransaction() {
+    this.transaction = undefined;
+  }
+
   protected getKnexQuery() {
-    return this.knex(this.getTableName());
+    return this.transaction ? this.transaction.table(this.getTableName()) : this.knex(this.getTableName());
   }
   
   get(id : any): Promise<T | undefined> {
@@ -63,6 +78,7 @@ export default abstract class BaseKnexRepository<T> implements BaseRepository<T>
   async insert(data: any): Promise<T> {
     this.validateData(data);
     const generatedKey = await this.getKnexQuery().insert(data, [this.getPrimaryKeyName()]);
+    
     return {
       ...data,
       ...generatedKey[0],

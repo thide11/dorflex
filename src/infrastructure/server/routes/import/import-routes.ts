@@ -7,13 +7,15 @@ import BaseExcelImporter from '../../../../domain/excel-importers/base-excel-imp
 import CostCenterAndAreaExcelImporter from '../../../excel-importers/cost-center-and-area-excel-importer';
 import ItensYearExcelImporter from '../../../excel-importers/itens-year-excel-importer';
 import MontlyExcelImporter from '../../../excel-importers/montly-excel-importer';
+import ProductionVolumeLoadExcelImporter from '../../../excel-importers/production-volume-load-excel-importer';
 import RequesterExcelImporter from '../../../excel-importers/requester-excel-importer';
 import ExcelReader from '../../../excel/excel-reader';
 import AreaKnexRepository from '../../../repositories/knex/area-knex-repository';
-import AreaMontlyInfoKnexRepository from '../../../repositories/knex/area-montly-info-knex-repository';
+import AreaMontlyInfoKnexRepository from '../../../repositories/knex/area-monthly-info-knex-repository';
 import CostCenterKnexRepository from '../../../repositories/knex/cost-center-knex-repository';
 import ExcelUploadsKnexRepository from '../../../repositories/knex/excel-uploads-knex-repository';
 import ItemKnexRepository from '../../../repositories/knex/item-knex-repository';
+import ItemLimitKnexRepository from '../../../repositories/knex/item-limit-knex-repository';
 import RequesterKnexRepository from '../../../repositories/knex/requester-knex-repository';
 import { getAuthDataOrThrow, requireLoggedUserToBeAdministradorOrThrow } from '../../utils/auth-utils';
 import { wrapRoutesErrorHandler } from '../../utils/wrap-routes-error-handler';
@@ -28,12 +30,14 @@ export function generateImportRoutes(knex : Knex) {
   const itemRepository = new ItemKnexRepository(knex);
   const costCenterRepository = new CostCenterKnexRepository(knex);
   const areaMontlyInfoRepository = new AreaMontlyInfoKnexRepository(knex);
+  const itemLimitRepository = new ItemLimitKnexRepository(knex);
   
   const typeToExcelImporter : { [key: string] : BaseExcelImporter } = {
     "requester-excel": new RequesterExcelImporter(requesterRepository, excelUploadsRepository, excelReader),
     "itens-year-excel": new ItensYearExcelImporter(areaRepository, itemRepository, excelUploadsRepository, excelReader),
     "cost-center-and-area-excel": new CostCenterAndAreaExcelImporter(areaRepository, costCenterRepository, excelUploadsRepository, excelReader),
-    "montly-excel": new MontlyExcelImporter(areaRepository, areaMontlyInfoRepository, excelUploadsRepository, excelReader),
+    "montly-excel": new MontlyExcelImporter(areaRepository, areaMontlyInfoRepository, itemLimitRepository, excelUploadsRepository, excelReader),
+    "production-volume-load-excel": new ProductionVolumeLoadExcelImporter(itemRepository, itemLimitRepository, areaRepository, areaMontlyInfoRepository, excelUploadsRepository, excelReader),
   }
 
   router.post("/", async (req : any, res) => {

@@ -5,8 +5,11 @@ import BaseExcelImporter from "../../domain/excel-importers/base-excel-importer"
 import AreaMontlyInfo from "../../domain/models/area-montly-info";
 import AreaRepository from "../../domain/repositories/area-repository";
 import ExcelUploadsRepository from "../../domain/repositories/excel-uploads-repository";
+import ItemLimitRepository from "../../domain/repositories/item-limit-repository";
 import ExcelReader from "../excel/excel-reader";
-import AreaMontlyInfoKnexRepository from "../repositories/knex/area-montly-info-knex-repository";
+import AreaMontlyInfoKnexRepository from "../repositories/knex/area-monthly-info-knex-repository";
+import ItemLimitKnexRepository from "../repositories/knex/item-limit-knex-repository";
+import monthStringToNumber from "../utils/month-string-to-number";
 
 export default class MontlyExcelImporter extends BaseExcelImporter {
 
@@ -25,7 +28,7 @@ export default class MontlyExcelImporter extends BaseExcelImporter {
       const month = item.month_string;
       if(defaultMonth == null) {
         defaultMonth = month;
-        this.monthStringToNumber(defaultMonth!);
+        monthStringToNumber(defaultMonth!);
       } else {
         if(defaultMonth != month) {
           throw new AppError(AppErrorCode.INVALID_DATA, `Esperado que todos os mêses da tabela sejam ${item.defaultMonth}, mas foi recebido uma linha com o mês de ${month}`)
@@ -36,25 +39,33 @@ export default class MontlyExcelImporter extends BaseExcelImporter {
     if(!defaultMonth) {
       throw new AppError(AppErrorCode.INVALID_DATA, `Mes não identificado`)
     }
-    const defaultMonthNumber = this.monthStringToNumber(defaultMonth);
-    const item_month_updates = []
+    const defaultMonthNumber = monthStringToNumber(defaultMonth);
     
-    for(const item of data) {
-      const month = defaultMonthNumber;
-      const year = (new Date()).getFullYear();
-      console.log(`${month}/${year}`)
-      const date = new Date(year, month);
-      item_month_updates.push({
-        month: date,
-        area_name: item.area_name,
-        real_production: item.real_production,
-      } as AreaMontlyInfo)
-    };
 
-    await this.areaMontlyInfoRepository.runUpdateTransaction(item_month_updates)
+    const transaction = await this.areaMontlyInfoRepository.createTransaction();
+    this.areaMontlyInfoRepository.setTransaction(transaction);
+
+    try {
+      for(const item of data) {
+        const month = defaultMonthNumber;
+        const year = (new Date()).getFullYear();
+
+        const updatedAreaMonth = {
+          real_production: item.real_production,
+        } as AreaMontlyInfo;
+        await this.areaMontlyInfoRepository.updateByAreaAndMonth(year, month, item.area_name, updatedAreaMonth);
+        const itemLimits = await this.itemLimitRepository.list();
+        //itemLimits.
+      };
+    } catch (e) {
+      await transaction.rollback();
+      throw e;
+    }
+    this.areaMontlyInfoRepository.removeTransaction();
+    await transaction.commit();
   }
 
-  constructor(private areaRepository : AreaRepository, private areaMontlyInfoRepository : AreaMontlyInfoKnexRepository, excelUploadsRepository : ExcelUploadsRepository, reader : ExcelReader) {
+  constructor(private areaRepository : AreaRepository, private areaMontlyInfoRepository : AreaMontlyInfoKnexRepository, private itemLimitRepository : ItemLimitRepository, excelUploadsRepository : ExcelUploadsRepository, reader : ExcelReader) {
     super(excelUploadsRepository, reader);
   }
 
@@ -63,20 +74,4 @@ export default class MontlyExcelImporter extends BaseExcelImporter {
     "Mês": "month_string",
     "Quantidade de produção real": "real_production",
   }
-
-  protected monthStringToNumber(monthString : string) {
-    const monthsConverter : { [key: string] : number }= {
-      janeiro: 0,
-      fevereiro: 1,
-      março: 2,
-      abril: 3,
-      maio: 4,
-    }
-    const month = monthsConverter[monthString.toLowerCase()]
-    if(month == undefined) {
-      throw new AppError(AppErrorCode.INVALID_DATA, `Mês dentro da planilha chamada '${monthString}' não reconhecida no sistema`)
-    }
-    return month;
-  }
-
 }

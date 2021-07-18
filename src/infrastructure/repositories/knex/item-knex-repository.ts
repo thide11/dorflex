@@ -3,6 +3,9 @@ import Item from "../../../domain/models/item";
 import ItemRepository from "../../../domain/repositories/item-repository";
 
 export default class ItemKnexRepository extends BaseKnexRepository<Item> implements ItemRepository {
+  listOnlyActiveItens(): Promise<Item[]> {
+    return this.getKnexQuery().where("blocked", false).select();
+  }
   protected getValidatorRules() : Validator.Rules {
     return {
       sap_atena : 'string|required',

@@ -57,7 +57,9 @@ export async function up(knex: Knex): Promise<void> {
   });
 
   await knex.schema.createTable("area_monthly_info", (table) => {
-    table.date("month").primary()
+    table.increments("id")
+    table.integer("year").notNullable()
+    table.integer("month").notNullable()
     table.double("production_volume_load").nullable()
     table.double("real_production").nullable()
     table.string("area_name").notNullable();
@@ -66,12 +68,13 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable("item_limit", (table) => {
     table.increments("id").primary()
-    table.integer("item_limit")
+    table.float("item_limit")
     table.integer("previous_saving").nullable()
-    table.date("area_monthly_info_month").notNullable();
+    table.integer("area_monthly_info_id").notNullable();
     table.integer("item_id").notNullable()
     table.integer("current_stock").notNullable()
     table.foreign("item_id").references("id").inTable("itens")
+    table.foreign("area_monthly_info_id").references("id").inTable("area_monthly_info")
   });
 
   await knex.schema.createTable('solicitation', (table) => {

@@ -12,6 +12,9 @@ import ExcelUploadsKnexRepository from "../../src/infrastructure/repositories/kn
 import ItemKnexRepository from "../../src/infrastructure/repositories/knex/item-knex-repository";
 import { createErrorBody } from "../../src/infrastructure/server/utils/wrap-routes-error-handler"
 import Item from "../../src/domain/models/item";
+import ItemLimitKnexRepository from "../../src/infrastructure/repositories/knex/item-limit-knex-repository";
+import ItemLimit from "../../src/domain/models/item-limit";
+import AreaMontlyInfoKnexRepository from "../../src/infrastructure/repositories/knex/area-monthly-info-knex-repository";
 
 export default function integrationImportTests(knex : Knex, app : any, authToken : string) {
 
@@ -135,8 +138,7 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
         await checkIfUploadIsOnExcelUploads(filename);
       })
 
-
-      test("Deve ler a planilha mensal com as áreas criadas anteriormente, com carga de volume de produção", async () => {
+      test("Deve criar as espectativas de produção, seguido da planilha mensal com as áreas criadas anteriormente", async () => {
 
         const areaRepository = new AreaKnexRepository(knex);
 
@@ -145,19 +147,99 @@ export default function integrationImportTests(knex : Knex, app : any, authToken
           solicitation_is_blocked: false,
         })
 
-        const filename = "upload-mensal.xlsx"
+        const filename = "upload-carga-volume-de-producao.xlsx"
         const response = await supertest(app)
+          .post('/import')
+          .field('type', 'production-volume-load-excel')
+          .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
+          .set("Authorization", `Bearer ${authToken}`)
+
+        
+        const anotherfilename = "upload-mensal.xlsx"
+        const anotherResponse = await supertest(app)
             .post('/import')
             .field('type', 'montly-excel')
-            .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
+            .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", anotherfilename))
             .set("Authorization", `Bearer ${authToken}`)
-  
-        expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
-        expect(response.body).toEqual(StatusCodes.BAD_REQUEST);
-  
-        await checkIfUploadIsOnExcelUploads(filename);
+
+
+        const monthlyList = new AreaMontlyInfoKnexRepository(knex);
+        const resultMonthlyList = await monthlyList.list()
+        expect(resultMonthlyList).toEqual([
+          {
+            id: 2,
+            year: 2021,
+            month: 0, //Janeiro
+            production_volume_load: 100000,
+            real_production: 900000,
+            area_name: "Calçados"
+          },
+          {
+            id: 1,
+            year: 2021,
+            month: 0, //Janeiro
+            production_volume_load: 900000,
+            real_production: 450000,
+            area_name: "Injetáveis"
+          }
+        ])
+
+        const itemLimitRepository = new ItemLimitKnexRepository(knex)
+        const itemLimits = await itemLimitRepository.list()
+        expect(itemLimits).toEqual([
+          {
+            area_monthly_info_id: 1,
+            current_stock: 100,
+            id: 1,
+            item_id: 1,
+            item_limit: 10,
+            previous_saving: 0,
+          }
+        ])
+
+        expect(anotherResponse.statusCode).toEqual(StatusCodes.CREATED);
       })
+
+
+
     });
+
+
+
+    test("Deve ler a planilha com carga de volume de produção e criar os limites para cada item", async () => {
+
+      const areaRepository = new AreaKnexRepository(knex);
+      await areaRepository.insert({
+        name: "Calçados",
+        solicitation_is_blocked: false,
+      })
+
+      const filename = "upload-carga-volume-de-producao.xlsx"
+
+      const response = await supertest(app)
+          .post('/import')
+          .field('type', 'production-volume-load-excel')
+          .attach('file',  path.resolve(__dirname, "..", "fixtures", "files", filename))
+          .set("Authorization", `Bearer ${authToken}`)
+
+      const itemLimitRepository = new ItemLimitKnexRepository(knex);
+      const itemLimits = await itemLimitRepository.list();
+      expect(itemLimits).toEqual([
+        {
+          id: 1,
+          item_limit: 0.0009,
+          previous_saving: 0,
+          area_monthly_info_id: 1,
+          item_id: 1,
+          current_stock: 100,
+        } as ItemLimit
+      ])
+
+      expect(response.body).toEqual(StatusCodes.BAD_REQUEST);
+      expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+
+      await checkIfUploadIsOnExcelUploads(filename);
+    })
 
     describe("Importação da planilha de centros de custos", () => {
       test('Deve ler a planilha', async () => {

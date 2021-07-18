@@ -82,6 +82,7 @@ export function runServer(knexArg? : Knex) {
     console.log("Dando bind na porta")
     configureDocs(app).then(() => {
       let options;
+      const port : number = Number(getEnvOrReturnError("PORT")) ?? 443;
       if(nodeEnv == "production") {
         const basePath = '/etc/letsencrypt/live/vps18215.publiccloud.com.br/';
         console.log(`Carregando chave ssl de producao do diretório ${basePath}`)
@@ -91,21 +92,17 @@ export function runServer(knexArg? : Knex) {
           cert: fs.readFileSync(basePath + "cert.pem", 'utf8'),
           ca: fs.readFileSync(basePath + "chain.pem", 'utf8'),
         };
+
+        const server = https.createServer(options, app);
+        server.listen(port, () => {
+          console.log(`Servidor rodando na porta ${port}`)
+        });
       } else {
-        console.log("Carregando https com certificado auto-assinado, ignorar se navegador alertar sobre conexão insegura")
-
-        options = {
-          key: fs.readFileSync(path.resolve('selfsigned', 'server.key'), 'utf-8'),
-          cert: fs.readFileSync(path.resolve('selfsigned', 'server.cert'), 'utf-8')
-        };
+        console.log("Carregando http para ambiente de desenvolvimento")
+        app.listen(port, () => {
+          console.log(`Servidor rodando na porta ${port}`)
+        });
       }
-
-      const port : number = Number(getEnvOrReturnError("PORT")) ?? 443;
-      const server = https.createServer(options, app);
-      server.listen(port, () => {
-        console.log(`Servidor rodando na porta ${port}`)
-      });
-
     });
   }
 
